@@ -45,7 +45,8 @@ betterauth-to-go/
   README.md, COMPAT.md, DIVERGENCES.md, QUESTIONS.md
   auth.go            Auth, New, Config, Option, Handler, ResolveSession
   store.go           Store interface and row types
-  pgstore/           pgx implementation of Store (the only package importing pgx)
+  pgstore/           pgx implementation of Store (the only package importing pgx), plus CheckSchema
+  migrations/        embedded SQL DDL in better-auth 1.6.14's table shapes, opt-in, never run automatically
   internal/crypto/   scrypt password, XChaCha20-Poly1305, HMAC cookie signing, id and token generation
   internal/cookie/   cookie names, signing, parsing, attributes
   internal/session/  session lookup, refresh, creation, revocation
@@ -76,6 +77,16 @@ func (a *Auth) ResolveSession(r *http.Request) (*SessionInfo, error) // ErrNoSes
 `ResolveSession` does one indexed query (session by token joined to user), allocates little, adds no cache, and has a benchmark with a target under 100 microseconds CPU excluding the database round trip.
 
 Events (optional callbacks): `OnSessionRevoked(userID, sessionID)`, `OnMembershipChanged(orgID, userID)`, `OnPasswordChanged(userID)`.
+
+### 5.1 Ease of adoption (Owner guidance, 2026-11-09)
+
+The point of the module is to make the move from better-auth to Go easy for an existing code base, including its database migrations. Consequences for the design:
+- **Drop-in surface.** Paths, cookies, JSON and error codes are the library's, so the browser client and existing middleware keep working; mounting is one `http.Handle("/api/auth/", a.Handler())` line plus a `ResolveSession` call in existing middleware. The README leads with a before/after of exactly that.
+- **Migrations are shipped, not imposed.** The module never creates or alters tables on its own. It embeds (`embed.FS`) the DDL of the tables it uses, as plain SQL files in the exact shape better-auth 1.6.14 creates, for projects that want to apply them with their own tool (goose, migrate, atlas, Drizzle push, plain `psql`). A project that already has the tables (Taskmanager) applies nothing.
+- **Schema check instead of schema ownership.** `pgstore.CheckSchema(ctx, pool)` compares the live tables and columns against what the module needs and returns a list of precise differences (missing column, wrong type, missing index) without changing anything. It is meant for startup and CI.
+- **Additive only.** Any storage the tightened fixes would need is proposed to the schema owner as an exact additive shape first (Taskmanager's rule); until then those fixes use process memory, and the divergence is documented.
+- **Bring your own pool, no global state.** `pgstore.New(*pgxpool.Pool)`; the `Store` interface lets a project adapt another database layer.
+- **Documented migration path.** `README.md` includes a checklist: pin the secret and base URL to the TypeScript values, run both implementations side by side, compare with the differential harness, switch traffic, remove the TypeScript service, delete this module's compatibility-only code when the project later chooses its own formats.
 
 ## 6. Hooks
 
