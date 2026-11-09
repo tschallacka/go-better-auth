@@ -13,6 +13,15 @@ This is a different product from the general-purpose library described in `AGENT
 
 Requested by the Taskmanager session ("Boss"); reference source is the public repo `github.com/tschallacka/Taskmanager` (commit bc68604) and the pinned npm tarballs (better-auth, @better-auth/passkey, @better-auth/core 1.6.14; @better-auth/utils 0.4.1; @noble/hashes 2.2.0; @noble/ciphers 2.2.0; better-call 1.3.5).
 
+### 1.1 Independent library (Owner guidance, 2026-11-09)
+
+This is an independent, reusable module for any project moving from better-auth to Go, not a Taskmanager component. Taskmanager is the first consumer and the first fixture, nothing more. Consequences:
+- Its own `go.mod` and its own tags, importing nothing from Taskmanager or from the `go-better-auth` library in this repository.
+- No application value is hard-coded. The issuer (`Taskmanager` in section 2), rpName, rpID, origins, provider list, session lifetimes, field names and every product rule come from `Config` and hooks. Section 2 describes the first consumer's configuration, not defaults.
+- Everything better-auth makes configurable stays configurable here: the compatibility target is the 1.6.14 behaviour for any supported option, with Taskmanager's configuration as the tested reference set. Options not yet supported are rejected by `New` with a clear error, never silently ignored.
+- Docs, tests and fixtures use neutral names; the Taskmanager-specific fixture lives in its own test directory.
+- The module path and tag scheme in section 11 are provisional: github.com/tschallacka/go-better-auth/betterauth-to-go works for now, and the code must be movable to its own repository without changes other than the path.
+
 ## 2. Scope
 
 In (same paths, methods, request and response JSON, status codes and error codes as the library):
