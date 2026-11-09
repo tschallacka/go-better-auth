@@ -41,6 +41,16 @@ In (same paths, methods, request and response JSON, status codes and error codes
 6. Discord, GitHub, Google and generic OAuth (`oidc`, discovery URL, PKCE), with an injectable HTTP client.
 7. Additional fields, the library's generic mechanism: declared in `Config` per model (user, session, organization, member, invitation) with a type, `required`, `defaultValue` and `input: false` (returned to the client, never settable by it). Taskmanager's `isInstanceAdmin` and `canCreateOrganizations` (user) and `joinCode` (organization) are its declarations of this mechanism, used as test fixtures. Whether a plain member can read a field is a per-field setting.
 
+### 2.1 Everything is in scope (Owner decision, 2026-11-09)
+
+The target is the whole better-auth 1.6.14 feature set, not only what Taskmanager enables, delivered in phases so each phase is verified before the next starts:
+- **Phase A (first consumer's set, section 8 steps 1 to 11):** core, organization, two-factor, passkey, emailOTP, Discord, GitHub, Google and generic OAuth, additional fields.
+- **Phase B (user and session plugins):** admin (user roles, ban, impersonation, set-role, user management), username, anonymous, multi-session, bearer, custom-session, last-login-method.
+- **Phase C (passwordless and extra factors):** magic-link, phone-number, one-time-token, one-tap, device-authorization, siwe, haveibeenpwned, captcha.
+- **Phase D (token and provider plugins):** jwt, oidc-provider, mcp, oauth-proxy, open-api, and the remaining social providers.
+
+The 1.6.14 package contains these plugins: access, additional-fields, admin, anonymous, bearer, captcha, custom-session, device-authorization, email-otp, generic-oauth, haveibeenpwned, jwt, last-login-method, magic-link, mcp, multi-session, oauth-proxy, oidc-provider, one-tap, one-time-token, open-api, organization, phone-number, siwe, two-factor, username. Every phase follows the same rule as phase A: research of the dist code, fixtures from the real library, a differential test per endpoint, and the section 1.2 priority order. Phase B to D research has not been done yet; each phase starts with its own research and `COMPAT.md` rows, and its own approval. `New` rejects configuration that enables a plugin from a phase not yet built.
+
 Out: sending mail (callbacks), the application's business rules (the app implements them through hooks), any server or router beyond an `http.Handler`.
 
 ## 3. Compatibility facts confirmed against the source
