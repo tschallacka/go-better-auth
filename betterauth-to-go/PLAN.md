@@ -22,6 +22,14 @@ This is an independent, reusable module for any project moving from better-auth 
 - Docs, tests and fixtures use neutral names; the Taskmanager-specific fixture lives in its own test directory.
 - The module path and tag scheme in section 11 are provisional: github.com/tschallacka/go-better-auth/betterauth-to-go works for now, and the code must be movable to its own repository without changes other than the path.
 
+### 1.2 Priority order (Owner guidance, 2026-11-09)
+
+Compatibility with Taskmanager is good; security and reusability rank above it. When they conflict the order is: security, then reusability, then compatibility with the 1.6.14 wire behaviour. In practice:
+- **Secure by default, compatibility by option.** Where the library's behaviour is a weakness, the default is the secure behaviour and an explicit `Compat` option in `Config` restores the library's behaviour for projects that need byte-for-byte parity during an overlap. This now covers D9 (the existing-email response on sign-up) and D11 (rate limits), which section 10 had kept as the library has them: D9 defaults to a non-revealing response with `Compat.RevealExistingEmail`, and D11 defaults to a pluggable `RateLimitStore` interface (memory default, shared store supplied by the project) instead of per-process counters only.
+- **Existing data keeps working.** Verifying better-auth's scrypt hashes and decrypting its stored secrets is required for adoption, whatever the security preference. New hashes are written in the compatible format by default; an optional password-rehash-on-login (for example to argon2id) is a `Config` choice once compatibility is proven, never the default during an overlap.
+- **Reusable by construction.** No global state, injectable clock, random source, HTTP client and logger, interfaces for the store and rate limiter, and no logging of secrets or tokens.
+- A wire-visible secure default that breaks the first consumer is reported to its maintainer before it ships, and the maintainer can turn on the matching `Compat` flag; it does not weaken the default.
+
 ## 2. Scope
 
 In (same paths, methods, request and response JSON, status codes and error codes as the library):
