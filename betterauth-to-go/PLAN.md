@@ -13,6 +13,23 @@ This is a different product from the general-purpose library described in `AGENT
 
 Requested by the Taskmanager session ("Boss"); reference source is the public repo `github.com/tschallacka/Taskmanager` (commit bc68604) and the pinned npm tarballs (better-auth, @better-auth/passkey, @better-auth/core 1.6.14; @better-auth/utils 0.4.1; @noble/hashes 2.2.0; @noble/ciphers 2.2.0; better-call 1.3.5).
 
+### 1.1 Independent library (Owner guidance, 2026-11-09)
+
+This is an independent, reusable module for any project moving from better-auth to Go, not a Taskmanager component. Taskmanager is the first consumer and the first fixture, nothing more. Consequences:
+- Its own `go.mod` and its own tags, importing nothing from Taskmanager or from the `go-better-auth` library in this repository.
+- No application value is hard-coded. The issuer (`Taskmanager` in section 2), rpName, rpID, origins, provider list, session lifetimes, field names and every product rule come from `Config` and hooks. Section 2 describes the first consumer's configuration, not defaults.
+- Everything better-auth makes configurable stays configurable here: the compatibility target is the 1.6.14 behaviour for any supported option, with Taskmanager's configuration as the tested reference set. Options not yet supported are rejected by `New` with a clear error, never silently ignored.
+- Docs, tests and fixtures use neutral names; the Taskmanager-specific fixture lives in its own test directory.
+- The module path and tag scheme in section 11 are provisional: github.com/tschallacka/go-better-auth/betterauth-to-go works for now, and the code must be movable to its own repository without changes other than the path.
+
+### 1.2 Priority order (Owner guidance, 2026-11-09)
+
+Compatibility with Taskmanager is good; security and reusability rank above it. When they conflict the order is: security, then reusability, then compatibility with the 1.6.14 wire behaviour. In practice:
+- **Secure by default, compatibility by option.** Where the library's behaviour is a weakness, the default is the secure behaviour and an explicit `Compat` option in `Config` restores the library's behaviour for projects that need byte-for-byte parity during an overlap. This now covers D9 (the existing-email response on sign-up) and D11 (rate limits), which section 10 had kept as the library has them: D9 defaults to a non-revealing response with `Compat.RevealExistingEmail`, and D11 defaults to a pluggable `RateLimitStore` interface (memory default, shared store supplied by the project) instead of per-process counters only.
+- **Existing data keeps working.** Verifying better-auth's scrypt hashes and decrypting its stored secrets is required for adoption, whatever the security preference. New hashes are written in the compatible format by default; an optional password-rehash-on-login (for example to argon2id) is a `Config` choice once compatibility is proven, never the default during an overlap.
+- **Reusable by construction.** No global state, injectable clock, random source, HTTP client and logger, interfaces for the store and rate limiter, and no logging of secrets or tokens.
+- A wire-visible secure default that breaks the first consumer is reported to its maintainer before it ships, and the maintainer can turn on the matching `Compat` flag; it does not weaken the default.
+
 ## 2. Scope
 
 In (same paths, methods, request and response JSON, status codes and error codes as the library):
@@ -45,7 +62,8 @@ betterauth-to-go/
   README.md, COMPAT.md, DIVERGENCES.md, QUESTIONS.md
   auth.go            Auth, New, Config, Option, Handler, ResolveSession
   store.go           Store interface and row types
-  pgstore/           pgx implementation of Store (the only package importing pgx)
+  pgstore/           pgx implementation of Store (the only package importing pgx), plus CheckSchema
+  migrations/        embedded SQL DDL in better-auth 1.6.14's table shapes, opt-in, never run automatically
   internal/crypto/   scrypt password, XChaCha20-Poly1305, HMAC cookie signing, id and token generation
   internal/cookie/   cookie names, signing, parsing, attributes
   internal/session/  session lookup, refresh, creation, revocation
@@ -76,6 +94,16 @@ func (a *Auth) ResolveSession(r *http.Request) (*SessionInfo, error) // ErrNoSes
 `ResolveSession` does one indexed query (session by token joined to user), allocates little, adds no cache, and has a benchmark with a target under 100 microseconds CPU excluding the database round trip.
 
 Events (optional callbacks): `OnSessionRevoked(userID, sessionID)`, `OnMembershipChanged(orgID, userID)`, `OnPasswordChanged(userID)`.
+
+### 5.1 Ease of adoption (Owner guidance, 2026-11-09)
+
+The point of the module is to make the move from better-auth to Go easy for an existing code base, including its database migrations. Consequences for the design:
+- **Drop-in surface.** Paths, cookies, JSON and error codes are the library's, so the browser client and existing middleware keep working; mounting is one `http.Handle("/api/auth/", a.Handler())` line plus a `ResolveSession` call in existing middleware. The README leads with a before/after of exactly that.
+- **Migrations are shipped, not imposed.** The module never creates or alters tables on its own. It embeds (`embed.FS`) the DDL of the tables it uses, as plain SQL files in the exact shape better-auth 1.6.14 creates, for projects that want to apply them with their own tool (goose, migrate, atlas, Drizzle push, plain `psql`). A project that already has the tables (Taskmanager) applies nothing.
+- **Schema check instead of schema ownership.** `pgstore.CheckSchema(ctx, pool)` compares the live tables and columns against what the module needs and returns a list of precise differences (missing column, wrong type, missing index) without changing anything. It is meant for startup and CI.
+- **Additive only.** Any storage the tightened fixes would need is proposed to the schema owner as an exact additive shape first (Taskmanager's rule); until then those fixes use process memory, and the divergence is documented.
+- **Bring your own pool, no global state.** `pgstore.New(*pgxpool.Pool)`; the `Store` interface lets a project adapt another database layer.
+- **Documented migration path.** `README.md` includes a checklist: pin the secret and base URL to the TypeScript values, run both implementations side by side, compare with the differential harness, switch traffic, remove the TypeScript service, delete this module's compatibility-only code when the project later chooses its own formats.
 
 ## 6. Hooks
 
