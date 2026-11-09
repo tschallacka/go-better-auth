@@ -34,12 +34,22 @@ Compatibility with Taskmanager is good; security and reusability rank above it. 
 
 In (same paths, methods, request and response JSON, status codes and error codes as the library):
 1. Core: email and password, sessions and cookies, sign-out, get-session, list and revoke sessions, change and reset password, email verification, update and delete user, accounts, origin and CSRF checks, rate limiting.
-2. organization plugin (21 HTTP routes in the app's configuration), including the server-issued `joinCode` field and the `allowUserToCreateOrganization` callback.
+2. organization plugin (21 HTTP routes in the app's configuration), including generic additional fields on the organization (Taskmanager's `joinCode` is one such field, declared by the app with `input: false`; it is not part of better-auth) and the `allowUserToCreateOrganization` callback.
 3. twoFactor (issuer `Taskmanager`), including backup codes and trusted devices.
 4. passkey (WebAuthn, rpID = hostname of `BETTER_AUTH_URL`, rpName `Taskmanager`).
 5. emailOTP (sign-in OTP, 600 s expiry, 3 attempts).
 6. Discord, GitHub, Google and generic OAuth (`oidc`, discovery URL, PKCE), with an injectable HTTP client.
-7. User additional fields `isInstanceAdmin` and `canCreateOrganizations` (output only).
+7. Additional fields, the library's generic mechanism: declared in `Config` per model (user, session, organization, member, invitation) with a type, `required`, `defaultValue` and `input: false` (returned to the client, never settable by it). Taskmanager's `isInstanceAdmin` and `canCreateOrganizations` (user) and `joinCode` (organization) are its declarations of this mechanism, used as test fixtures. Whether a plain member can read a field is a per-field setting.
+
+### 2.1 Everything is in scope (Owner decision, 2026-11-09)
+
+The target is the whole better-auth 1.6.14 feature set, not only what Taskmanager enables, delivered in phases so each phase is verified before the next starts:
+- **Phase A (first consumer's set, section 8 steps 1 to 11):** core, organization, two-factor, passkey, emailOTP, Discord, GitHub, Google and generic OAuth, additional fields.
+- **Phase B (user and session plugins):** admin (user roles, ban, impersonation, set-role, user management), username, anonymous, multi-session, bearer, custom-session, last-login-method.
+- **Phase C (passwordless and extra factors):** magic-link, phone-number, one-time-token, one-tap, device-authorization, siwe, haveibeenpwned, captcha.
+- **Phase D (token and provider plugins):** jwt, oidc-provider, mcp, oauth-proxy, open-api, and the remaining social providers.
+
+The 1.6.14 package contains these plugins: access, additional-fields, admin, anonymous, bearer, captcha, custom-session, device-authorization, email-otp, generic-oauth, haveibeenpwned, jwt, last-login-method, magic-link, mcp, multi-session, oauth-proxy, oidc-provider, one-tap, one-time-token, open-api, organization, phone-number, siwe, two-factor, username. Every phase follows the same rule as phase A: research of the dist code, fixtures from the real library, a differential test per endpoint, and the section 1.2 priority order. Phase B to D research has not been done yet; each phase starts with its own research and `COMPAT.md` rows, and its own approval. `New` rejects configuration that enables a plugin from a phase not yet built.
 
 Out: sending mail (callbacks), the application's business rules (the app implements them through hooks), any server or router beyond an `http.Handler`.
 
@@ -115,6 +125,26 @@ Mirror the library's semantics in Go extension points:
 
 Tested against a fake application in this module's tests. The Taskmanager rules themselves are the application's job.
 
+### 6.1 Events (Owner decision, 2026-11-09)
+
+Events are notifications after the fact; hooks (above) can veto or modify, events cannot.
+- One `Events` interface (a no-op base type to embed) and `WithEventHandler(h)`, which may be given several times; events are fanned out to every registered handler.
+- Events are typed structs with a `context.Context`: session created and revoked, user created and updated, membership changed, password changed, two-factor enabled and disabled, passkey added and removed, sign-in failed.
+- Handlers run synchronously after the database commit. A project wanting async work uses its own goroutine or queue inside its handler.
+- A handler that panics or errors never fails the auth call; it is reported through the injected logger.
+- No channels, no global registry.
+
+### 6.2 Dynamic permission checks (Owner decision, 2026-11-09)
+
+Beyond the static access-control statements and roles from `Config`, a project registers permission checks at runtime:
+- `WithAuthorizer(name, func(ctx, Request) Decision)`, where `Request` carries the user, the active organization and the member's roles, the resource, the action, and the HTTP request context; `Decision` is `Allow`, `Deny` or `Abstain`.
+- Evaluation: the default check (the static role statements) gives the baseline decision. Registered checks are overrides: when any of them returns `Allow` or `Deny`, that decision replaces the baseline in both directions (a check can grant what the baseline refuses and refuse what it grants). Among the registered checks `Deny` beats `Allow`, so one cautious check cannot be outvoted. If every check abstains, the baseline stands. Checks run in registration order and stop at the first `Deny`. A check that panics or errors counts as `Deny` (fail closed) and is logged.
+- **Audit log of overrides.** Every permission decision produces an audit record with the permission (resource and action), the user id, the organization id, the baseline decision, the final decision, and whether it was changed by a registered check, naming the check. A record is written to an `AuditSink` interface (default: the injected logger; a project supplies its own sink to persist records, since this module adds no tables). Records never contain secrets, tokens or request bodies. Decisions that were not changed are logged at a low level or sampled (configurable) so the log stays useful.
+- **Override counter.** For every (check name, permission) pair the module counts how often the check changed the baseline decision, readable through `Auth.AuditCounters()` and exposed to a project's metrics. Counters are in process memory, per instance, and reset on restart; a persistent count is the sink's job. This shows which overrides are used and which can be removed.
+- The same mechanism backs every organization route's permission check and the has-permission endpoint, so the answer to "may this user do this" is one code path.
+- Registration is by name so a check can be replaced or removed, and checks can be added after `New` before the handler starts serving.
+- Default configuration reproduces the library's three built-in roles exactly; the differential tests pin the permission matrix against the real library with no authorizers registered.
+
 ## 7. Verification strategy
 
 1. **Fixture generator** (`testdata/gen/`, Node or Bun): starts the real better-auth 1.6.14 with the app's configuration against a scratch PostgreSQL database and drives every flow, recording DB dumps and request/response pairs. Generated secrets and fake users only.
@@ -162,7 +192,7 @@ The library has behaviours that are weaknesses. The default is to copy them exac
 | D4 | TOTP codes have no replay tracking | copy | reject reuse within the window (the brief asks for a replay test) |
 | D5 | An expired two-factor cookie may work once | copy | reject expired |
 | D6 | Enabling two-factor for an already-verified user regenerates the secret with the password only | copy | require current TOTP |
-| D7 | Any organization member can read all invitations, roles and `joinCode` | copy | restrict |
+| D7 | Any organization member can read all invitations and roles, and every additional field of the organization | copy | restrict invitations and roles for plain members by default; additional fields readable by members unless the field is declared member-hidden |
 | D8 | Accepting an invitation has no already-member check; no unique index on member(org,user) | copy | check in code (no schema change) |
 | D9 | Sign-up returns 422 for an existing email, revealing the account | copy | n/a, client depends on it |
 | D10 | emailOTP check endpoint distinguishes USER_NOT_FOUND from INVALID_OTP | copy | uniform error |
