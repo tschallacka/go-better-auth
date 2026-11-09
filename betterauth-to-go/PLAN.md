@@ -115,6 +115,24 @@ Mirror the library's semantics in Go extension points:
 
 Tested against a fake application in this module's tests. The Taskmanager rules themselves are the application's job.
 
+### 6.1 Events (Owner decision, 2026-11-09)
+
+Events are notifications after the fact; hooks (above) can veto or modify, events cannot.
+- One `Events` interface (a no-op base type to embed) and `WithEventHandler(h)`, which may be given several times; events are fanned out to every registered handler.
+- Events are typed structs with a `context.Context`: session created and revoked, user created and updated, membership changed, password changed, two-factor enabled and disabled, passkey added and removed, sign-in failed.
+- Handlers run synchronously after the database commit. A project wanting async work uses its own goroutine or queue inside its handler.
+- A handler that panics or errors never fails the auth call; it is reported through the injected logger.
+- No channels, no global registry.
+
+### 6.2 Dynamic permission checks (Owner decision, 2026-11-09)
+
+Beyond the static access-control statements and roles from `Config`, a project registers permission checks at runtime:
+- `WithAuthorizer(name, func(ctx, Request) Decision)`, where `Request` carries the user, the active organization and the member's roles, the resource, the action, and the HTTP request context; `Decision` is `Allow`, `Deny` or `Abstain`.
+- Evaluation: the static role statements give the baseline decision; registered checks run in registration order; any `Deny` wins; otherwise any `Allow` grants access the baseline refused; if all abstain the baseline stands. A check that panics or errors counts as `Deny` (fail closed) and is logged.
+- The same mechanism backs every organization route's permission check and the has-permission endpoint, so the answer to "may this user do this" is one code path.
+- Registration is by name so a check can be replaced or removed, and checks can be added after `New` before the handler starts serving.
+- Default configuration reproduces the library's three built-in roles exactly; the differential tests pin the permission matrix against the real library with no authorizers registered.
+
 ## 7. Verification strategy
 
 1. **Fixture generator** (`testdata/gen/`, Node or Bun): starts the real better-auth 1.6.14 with the app's configuration against a scratch PostgreSQL database and drives every flow, recording DB dumps and request/response pairs. Generated secrets and fake users only.
