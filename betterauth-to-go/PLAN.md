@@ -34,12 +34,12 @@ Compatibility with Taskmanager is good; security and reusability rank above it. 
 
 In (same paths, methods, request and response JSON, status codes and error codes as the library):
 1. Core: email and password, sessions and cookies, sign-out, get-session, list and revoke sessions, change and reset password, email verification, update and delete user, accounts, origin and CSRF checks, rate limiting.
-2. organization plugin (21 HTTP routes in the app's configuration), including the server-issued `joinCode` field and the `allowUserToCreateOrganization` callback.
+2. organization plugin (21 HTTP routes in the app's configuration), including generic additional fields on the organization (Taskmanager's `joinCode` is one such field, declared by the app with `input: false`; it is not part of better-auth) and the `allowUserToCreateOrganization` callback.
 3. twoFactor (issuer `Taskmanager`), including backup codes and trusted devices.
 4. passkey (WebAuthn, rpID = hostname of `BETTER_AUTH_URL`, rpName `Taskmanager`).
 5. emailOTP (sign-in OTP, 600 s expiry, 3 attempts).
 6. Discord, GitHub, Google and generic OAuth (`oidc`, discovery URL, PKCE), with an injectable HTTP client.
-7. User additional fields `isInstanceAdmin` and `canCreateOrganizations` (output only).
+7. Additional fields, the library's generic mechanism: declared in `Config` per model (user, session, organization, member, invitation) with a type, `required`, `defaultValue` and `input: false` (returned to the client, never settable by it). Taskmanager's `isInstanceAdmin` and `canCreateOrganizations` (user) and `joinCode` (organization) are its declarations of this mechanism, used as test fixtures. Whether a plain member can read a field is a per-field setting.
 
 Out: sending mail (callbacks), the application's business rules (the app implements them through hooks), any server or router beyond an `http.Handler`.
 
@@ -182,7 +182,7 @@ The library has behaviours that are weaknesses. The default is to copy them exac
 | D4 | TOTP codes have no replay tracking | copy | reject reuse within the window (the brief asks for a replay test) |
 | D5 | An expired two-factor cookie may work once | copy | reject expired |
 | D6 | Enabling two-factor for an already-verified user regenerates the secret with the password only | copy | require current TOTP |
-| D7 | Any organization member can read all invitations, roles and `joinCode` | copy | restrict |
+| D7 | Any organization member can read all invitations and roles, and every additional field of the organization | copy | restrict invitations and roles for plain members by default; additional fields readable by members unless the field is declared member-hidden |
 | D8 | Accepting an invitation has no already-member check; no unique index on member(org,user) | copy | check in code (no schema change) |
 | D9 | Sign-up returns 422 for an existing email, revealing the account | copy | n/a, client depends on it |
 | D10 | emailOTP check endpoint distinguishes USER_NOT_FOUND from INVALID_OTP | copy | uniform error |
