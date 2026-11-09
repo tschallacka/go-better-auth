@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"net/url"
 	"strings"
 )
 
@@ -27,4 +28,31 @@ func Sign(value, secret string) string {
 		}
 	}
 	return b.String()
+}
+
+// Verify checks a value written by Sign and returns it. ok is false for any
+// malformed, truncated or tampered input.
+func Verify(signed, secret string) (value string, ok bool) {
+	raw, err := url.PathUnescape(signed)
+	if err != nil {
+		return "", false
+	}
+	i := strings.LastIndexByte(raw, '.')
+	if i <= 0 {
+		return "", false
+	}
+	value, sig := raw[:i], raw[i+1:]
+	if len(sig) != base64.StdEncoding.EncodedLen(sha256.Size) {
+		return "", false
+	}
+	got, err := base64.StdEncoding.DecodeString(sig)
+	if err != nil || len(got) != sha256.Size || base64.StdEncoding.EncodeToString(got) != sig {
+		return "", false
+	}
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(value))
+	if !hmac.Equal(got, mac.Sum(nil)) {
+		return "", false
+	}
+	return value, true
 }
