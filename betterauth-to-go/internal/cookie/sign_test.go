@@ -2,9 +2,8 @@ package cookie
 
 import "testing"
 
-// Vectors are HMAC-SHA256 with the made-up secret below, in the form
-// better-auth 1.6.14 writes them (makeSignature: base64 of the MAC, then
-// the cookie value percent-encoded).
+// Vectors are from better-auth 1.6.14 makeSignature, run with the made-up
+// secret below. The encoded form is the cookie value as the library writes it.
 const testSecret = "made-up-secret-for-tests-0123456789"
 
 const (
@@ -12,9 +11,9 @@ const (
 	vecSigned1 = "tokenABC123.qqJ3SEReVpc7LgFxEtdfwTOtTE57T4V4yoNxsp9D9uU%3D"
 	vecRaw1    = "tokenABC123.qqJ3SEReVpc7LgFxEtdfwTOtTE57T4V4yoNxsp9D9uU="
 
-	vecValue2  = "abc+/=d"
-	vecSigned2 = "abc%2B%2F%3Dd.GJNLbpC9b22gVfRXxecP7bhyHtaYhx5UYfy8Jr0dkRY%3D"
-	vecRaw2    = "abc+/=d.GJNLbpC9b22gVfRXxecP7bhyHtaYhx5UYfy8Jr0dkRY="
+	vecValue2  = "abc+/=def"
+	vecSigned2 = "abc%2B%2F%3Ddef.xpd4JZHwWD42PQ%2FPKato4uzS7SO45fSj64wwEg8EYWk%3D"
+	vecRaw2    = "abc+/=def.xpd4JZHwWD42PQ/PKato4uzS7SO45fSj64wwEg8EYWk="
 )
 
 func TestSignVerify(t *testing.T) {
@@ -34,9 +33,9 @@ func TestSignVerify(t *testing.T) {
 		"encoded vector":                  {vecSigned1, vecValue1},
 		"unencoded = in signature":        {vecRaw1, vecValue1},
 		"encoded vector 2":                {vecSigned2, vecValue2},
-		"lowercase hex":                   {"abc%2b%2f%3dd.GJNLbpC9b22gVfRXxecP7bhyHtaYhx5UYfy8Jr0dkRY%3d", vecValue2},
+		"lowercase hex":                   {"abc%2b%2f%3ddef.xpd4JZHwWD42PQ%2fPKato4uzS7SO45fSj64wwEg8EYWk%3d", vecValue2},
 		"unencoded = + / left as is":      {vecRaw2, vecValue2},
-		"plus stays plus, not a space":    {"abc+/=d.GJNLbpC9b22gVfRXxecP7bhyHtaYhx5UYfy8Jr0dkRY%3D", vecValue2},
+		"plus stays plus, not a space":    {"abc+/=def.xpd4JZHwWD42PQ%2FPKato4uzS7SO45fSj64wwEg8EYWk%3D", vecValue2},
 		"value with %25 round trips once": {Sign("a%25", testSecret), "a%25"},
 	}
 	for name, c := range accept {
