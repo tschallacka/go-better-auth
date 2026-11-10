@@ -54,8 +54,5 @@ func Verify(signed, secret string) (value string, ok bool) {
 	if !hmac.Equal(got, mac.Sum(nil)) {
 		return "", false
 	}
-	if Sign(value, secret) != signed {
-		return "", false
-	}
 	return value, true
 }
