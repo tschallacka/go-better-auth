@@ -11,7 +11,22 @@ type failReader struct{ err error }
 
 func (r failReader) Read([]byte) (int, error) { return 0, r.err }
 
+// TestRandomString follows better-auth generateId: a-z, A-Z, 0-9, threshold 248.
 func TestRandomString(t *testing.T) {
+	t.Run("alphabet order", func(t *testing.T) {
+		src := make([]byte, 62)
+		for i := range src {
+			src[i] = byte(i)
+		}
+		got, err := RandomString(bytes.NewReader(src), 62)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if want := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; got != want {
+			t.Fatalf("got %q, want %q", got, want)
+		}
+	})
+
 	t.Run("length and alphabet", func(t *testing.T) {
 		src := make([]byte, 4096)
 		for i := range src {
