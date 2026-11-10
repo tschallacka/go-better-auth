@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "gen": "node index.mjs",
+    "gen:check": "node index.mjs --check"
+  },
   "dependencies": {
     "@better-auth/passkey": "1.6.14",
     "better-auth": "1.6.14",
