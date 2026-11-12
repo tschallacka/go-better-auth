@@ -105,6 +105,14 @@ func FuzzDecodeUTF8(f *testing.F) {
 	})
 }
 
+func TestToLowerCaseMatchesNode(t *testing.T) {
+	for _, c := range testvectors.LoadCrypto(t).Builtins.ToLowerCase {
+		if got := ToLowerCase(c.In); got != c.Out {
+			t.Errorf("ToLowerCase(%q) = %q; node %q", c.In, got, c.Out)
+		}
+	}
+}
+
 func TestUTF16Len(t *testing.T) {
 	for s, want := range map[string]int{"": 0, "abc": 3, "ü": 1, "€": 1, "😀": 2} {
 		if got := UTF16Len(s); got != want {

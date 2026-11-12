@@ -43,6 +43,7 @@ jobs:
       - name: make check (gofmt, go vet, staticcheck, go test -race)
         env:
           GBA_REQUIRE_LIBRARY: "1" # cross-checks against better-auth fail instead of skipping
+          GBA_REQUIRE_DATABASE: "1" # so do the PostgreSQL tests
         run: nix develop --command make check
 
       - name: Stop scratch PostgreSQL

@@ -44,6 +44,7 @@ Each target runs in every directory that holds a `go.mod`. Before the first modu
 ```sh
 cd betterauth-to-go/testdata/gen && npm ci --ignore-scripts
 npm run vectors        # re-record testdata/fixtures/crypto-vectors.json
+PG_URL=$(pg-scratch url) npm run schema   # re-record the schema fixtures and betterauth-to-go/migrations
 ```
 
 Tests that need it skip when it is not installed. CI installs it and sets `GBA_REQUIRE_LIBRARY=1`, which turns those skips into failures.

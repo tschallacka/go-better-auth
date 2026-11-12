@@ -1,0 +1,458 @@
+{
+  "user": {
+    "modelName": "users",
+    "fields": {
+      "name": {
+        "type": "string",
+        "required": true,
+        "fieldName": "name",
+        "sortable": true
+      },
+      "email": {
+        "type": "string",
+        "unique": true,
+        "required": true,
+        "fieldName": "email_address",
+        "sortable": true
+      },
+      "emailVerified": {
+        "type": "boolean",
+        "defaultValue": false,
+        "required": true,
+        "fieldName": "email_verified",
+        "input": false
+      },
+      "image": {
+        "type": "string",
+        "required": false,
+        "fieldName": "image"
+      },
+      "createdAt": {
+        "type": "date",
+        "defaultValue": {
+          "fn": true
+        },
+        "required": true,
+        "fieldName": "createdAt"
+      },
+      "updatedAt": {
+        "type": "date",
+        "defaultValue": {
+          "fn": true
+        },
+        "onUpdate": {
+          "fn": true
+        },
+        "required": true,
+        "fieldName": "updatedAt"
+      },
+      "twoFactorEnabled": {
+        "type": "boolean",
+        "required": false,
+        "defaultValue": false,
+        "input": false
+      },
+      "isInstanceAdmin": {
+        "type": "boolean",
+        "required": false,
+        "defaultValue": false,
+        "input": false
+      },
+      "locale": {
+        "type": "string",
+        "required": false,
+        "fieldName": "user_locale"
+      }
+    },
+    "order": 1
+  },
+  "session": {
+    "modelName": "sessions",
+    "fields": {
+      "expiresAt": {
+        "type": "date",
+        "required": true,
+        "fieldName": "expiresAt"
+      },
+      "token": {
+        "type": "string",
+        "required": true,
+        "fieldName": "token",
+        "unique": true
+      },
+      "createdAt": {
+        "type": "date",
+        "required": true,
+        "fieldName": "createdAt",
+        "defaultValue": {
+          "fn": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "required": true,
+        "fieldName": "updatedAt",
+        "onUpdate": {
+          "fn": true
+        }
+      },
+      "ipAddress": {
+        "type": "string",
+        "required": false,
+        "fieldName": "ipAddress"
+      },
+      "userAgent": {
+        "type": "string",
+        "required": false,
+        "fieldName": "userAgent"
+      },
+      "userId": {
+        "type": "string",
+        "fieldName": "user_id",
+        "references": {
+          "model": "users",
+          "field": "id",
+          "onDelete": "cascade"
+        },
+        "required": true,
+        "index": true
+      },
+      "activeOrganizationId": {
+        "type": "string",
+        "required": false
+      },
+      "device": {
+        "type": "string",
+        "required": false
+      }
+    },
+    "order": 2
+  },
+  "account": {
+    "modelName": "accounts",
+    "fields": {
+      "accountId": {
+        "type": "string",
+        "required": true,
+        "fieldName": "accountId"
+      },
+      "providerId": {
+        "type": "string",
+        "required": true,
+        "fieldName": "providerId"
+      },
+      "userId": {
+        "type": "string",
+        "references": {
+          "model": "users",
+          "field": "id",
+          "onDelete": "cascade"
+        },
+        "required": true,
+        "fieldName": "userId",
+        "index": true
+      },
+      "accessToken": {
+        "type": "string",
+        "required": false,
+        "returned": false,
+        "fieldName": "accessToken"
+      },
+      "refreshToken": {
+        "type": "string",
+        "required": false,
+        "returned": false,
+        "fieldName": "refreshToken"
+      },
+      "idToken": {
+        "type": "string",
+        "required": false,
+        "returned": false,
+        "fieldName": "idToken"
+      },
+      "accessTokenExpiresAt": {
+        "type": "date",
+        "required": false,
+        "returned": false,
+        "fieldName": "accessTokenExpiresAt"
+      },
+      "refreshTokenExpiresAt": {
+        "type": "date",
+        "required": false,
+        "returned": false,
+        "fieldName": "refreshTokenExpiresAt"
+      },
+      "scope": {
+        "type": "string",
+        "required": false,
+        "fieldName": "scope"
+      },
+      "password": {
+        "type": "string",
+        "required": false,
+        "returned": false,
+        "fieldName": "password"
+      },
+      "createdAt": {
+        "type": "date",
+        "required": true,
+        "fieldName": "createdAt",
+        "defaultValue": {
+          "fn": true
+        }
+      },
+      "updatedAt": {
+        "type": "date",
+        "required": true,
+        "fieldName": "updatedAt",
+        "onUpdate": {
+          "fn": true
+        }
+      }
+    },
+    "order": 3
+  },
+  "verification": {
+    "modelName": "verifications",
+    "fields": {
+      "identifier": {
+        "type": "string",
+        "required": true,
+        "fieldName": "identifier",
+        "index": true
+      },
+      "value": {
+        "type": "string",
+        "required": true,
+        "fieldName": "value"
+      },
+      "expiresAt": {
+        "type": "date",
+        "required": true,
+        "fieldName": "expiresAt"
+      },
+      "createdAt": {
+        "type": "date",
+        "required": true,
+        "defaultValue": {
+          "fn": true
+        },
+        "fieldName": "createdAt"
+      },
+      "updatedAt": {
+        "type": "date",
+        "required": true,
+        "defaultValue": {
+          "fn": true
+        },
+        "onUpdate": {
+          "fn": true
+        },
+        "fieldName": "updatedAt"
+      }
+    },
+    "order": 4
+  },
+  "organization": {
+    "fields": {
+      "name": {
+        "type": "string",
+        "required": true,
+        "sortable": true
+      },
+      "slug": {
+        "type": "string",
+        "required": true,
+        "unique": true,
+        "sortable": true,
+        "index": true
+      },
+      "logo": {
+        "type": "string",
+        "required": false
+      },
+      "createdAt": {
+        "type": "date",
+        "required": true
+      },
+      "metadata": {
+        "type": "string",
+        "required": false
+      },
+      "joinCode": {
+        "type": "string",
+        "required": false,
+        "input": false,
+        "unique": true
+      }
+    },
+    "modelName": "orgs"
+  },
+  "member": {
+    "fields": {
+      "organizationId": {
+        "type": "string",
+        "required": true,
+        "references": {
+          "model": "organization",
+          "field": "id"
+        },
+        "fieldName": "org_id",
+        "index": true
+      },
+      "userId": {
+        "type": "string",
+        "required": true,
+        "references": {
+          "model": "user",
+          "field": "id"
+        },
+        "index": true
+      },
+      "role": {
+        "type": "string",
+        "required": true,
+        "sortable": true,
+        "defaultValue": "member"
+      },
+      "createdAt": {
+        "type": "date",
+        "required": true
+      }
+    },
+    "modelName": "member"
+  },
+  "invitation": {
+    "fields": {
+      "organizationId": {
+        "type": "string",
+        "required": true,
+        "references": {
+          "model": "organization",
+          "field": "id"
+        },
+        "index": true
+      },
+      "email": {
+        "type": "string",
+        "required": true,
+        "sortable": true,
+        "index": true
+      },
+      "role": {
+        "type": "string",
+        "required": false,
+        "sortable": true
+      },
+      "status": {
+        "type": "string",
+        "required": true,
+        "sortable": true,
+        "defaultValue": "pending"
+      },
+      "expiresAt": {
+        "type": "date",
+        "required": true
+      },
+      "createdAt": {
+        "type": "date",
+        "required": true,
+        "defaultValue": {
+          "fn": true
+        }
+      },
+      "inviterId": {
+        "type": "string",
+        "references": {
+          "model": "user",
+          "field": "id"
+        },
+        "required": true
+      }
+    },
+    "modelName": "invitation"
+  },
+  "twoFactor": {
+    "fields": {
+      "secret": {
+        "type": "string",
+        "required": true,
+        "returned": false,
+        "index": true
+      },
+      "backupCodes": {
+        "type": "string",
+        "required": true,
+        "returned": false
+      },
+      "userId": {
+        "type": "string",
+        "required": true,
+        "returned": false,
+        "references": {
+          "model": "user",
+          "field": "id"
+        },
+        "index": true
+      },
+      "verified": {
+        "type": "boolean",
+        "required": false,
+        "defaultValue": true,
+        "input": false
+      }
+    },
+    "modelName": "two_factors"
+  },
+  "passkey": {
+    "fields": {
+      "name": {
+        "type": "string",
+        "required": false
+      },
+      "publicKey": {
+        "type": "string",
+        "required": true
+      },
+      "userId": {
+        "type": "string",
+        "references": {
+          "model": "user",
+          "field": "id"
+        },
+        "required": true,
+        "index": true
+      },
+      "credentialID": {
+        "type": "string",
+        "required": true,
+        "index": true
+      },
+      "counter": {
+        "type": "number",
+        "required": true
+      },
+      "deviceType": {
+        "type": "string",
+        "required": true
+      },
+      "backedUp": {
+        "type": "boolean",
+        "required": true
+      },
+      "transports": {
+        "type": "string",
+        "required": false
+      },
+      "createdAt": {
+        "type": "date",
+        "required": false
+      },
+      "aaguid": {
+        "type": "string",
+        "required": false
+      }
+    },
+    "modelName": "passkey"
+  }
+}

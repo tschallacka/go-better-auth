@@ -99,6 +99,10 @@ type Builtins struct {
 		Hex string `json:"hex"`
 		Out string `json:"out"`
 	} `json:"textDecoder"`
+	ToLowerCase []struct {
+		In  string `json:"in"`
+		Out string `json:"out"`
+	} `json:"toLowerCase"`
 }
 
 // FixturesDir is the absolute path of testdata/fixtures.

@@ -176,6 +176,11 @@ out.builtins = {
     (s) => ({ in: s, out: Number.isNaN(parseInt(s, 10)) ? null : String(parseInt(s, 10)) }),
   ),
   trim: [" a ", "\t\n a ", "﻿a　", " a ", "​a"].map((s) => ({ in: s, out: s.trim() })),
+  // String.prototype.toLowerCase, which the adapter applies to the value of a
+  // case-insensitive eq/ne/in/not_in: full Unicode mapping, final sigma included.
+  toLowerCase: [
+    "ABC", "ÉMILE@X.COM", "İstanbul", "ΟΔΟΣ", "ΣΑΣ Σ", "Straße", "ẞ", "ǅ", "ΌΣΟΣ.", "KELVİN K", "ＡＢＣ", "Ⅻ", "σΣ", "AΣb",
+  ].map((s) => ({ in: s, out: s.toLowerCase() })),
   // TextDecoder (what symmetricDecrypt uses) on malformed UTF-8: one U+FFFD
   // per maximal invalid subpart, per the WHATWG decoder.
   textDecoder: [

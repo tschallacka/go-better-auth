@@ -3,70 +3,70 @@
   "passwordHashes": [
     {
       "password": "correct horse battery staple",
-      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa"
+      "hash": "e590f740cd665f62813480bf8ee9d32c:dc693944d250238858efbf5fff397f6aca82f349412451b5843d68472ea3076b9602d8adf243bba63b87cca95f49a3647dc25d051d8de79c5bc076a48c78970a"
     },
     {
       "password": "p",
-      "hash": "d0e0ea15b0171bd0b1b3f1c13e656997:101d6b03c2a3821a1cfe7667d1c5a2b524a5df7f4417b28d01a05dbe61161169e413637559114f0e038c8a5c92bab5c02496e9b2b32f5f0cc0b132fa2d87f654"
+      "hash": "44c663b1409c9c1e472f305bcb36fdb0:e8dd9a1f2e7ad4501a5964bcff798c8ced272af4cadc7435dfc72fc1f80e98970de8851e39967a25e311c47f92e41659918f456ae2179e4f89daaf4ffd4a5389"
     },
     {
       "password": "ünïcödé-pässwörd",
-      "hash": "d2bba5d8ff6fc74b95ab3cddfcffbab9:e2ad8ae2b65b0478d09405ef6b6799405f77c65b29e2bf658d8d74e01a16a6bd37a9a33daf97109144915ebc0389b639fae696613f484e388246da8ce5b48716"
+      "hash": "f32058d892cc136cd04f4e044d51a2d1:c165e211db68d256044eb9177070d256814dbd39e6aba9e8501e90608673ec580b30e55d14e0df409cbae71364f0c7e5216917d1343119c57db64d65adaacbd7"
     },
     {
       "password": "ｐａｓｓ",
-      "hash": "58b1e9809b21ce27738e20cf5aa0f72d:8d1996cd9d982258c3b557596314ee3d0e255808163a3864c45e39374d3053ccec105af4c68d0589682774f59d162e45db8ef02656488a7a9ec4b890c34e42ca"
+      "hash": "d8e88b8d8266120a3132240a61b86582:b1b1a985e74be4227f12e8e7719104016e72c256bd82467c22b4fc3a692ceaed7f8e8693b14d01e735fac060fcea5278784c0f2b36583550948a99972da4d6ed"
     },
     {
       "password": "é",
-      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062"
+      "hash": "00e73864dd40ca631a6ae98e0989e54e:6e28d96e544aff4a0e5aa37d67aea04c25f3432652e9439253b111b8ed053d96a49c7dda85fcf03f6b9d2c34ad488b276d36c00b3efe2d87b7b7a4ecc359a84e"
     },
     {
       "password": "é",
-      "hash": "b131efd4e3d204358972947bbb2b9f60:0535c69bdea04918b34a36a67671d912951e33b3be36d6f8d6cace611b64d9785eb7880efeb5425321aa3d07a833259211479b9ba71741a7c51a3043e83e93b4"
+      "hash": "8bac2a5f58aefff3765132b4fee0123f:83f935161a938e5f3dafd6001acd3863fb0dd6d586a3be0ad19e0c002b0c45657292f113a53462356ffe5a6d0439d4759fb39232dc1ffd079a35de58262a5dd1"
     },
     {
       "password": "colon:inside:password",
-      "hash": "ba17717533aad32a23fcd0a3122bc2b3:e19e1109ad4520c9c41cf73148028e4ff8b91dc5838e6e52498b8bb7562fb0087829bfa1dabc4d24e0a0a3623cc713671180dba3b61b39106ac2490e7b43101a"
+      "hash": "6d89e7b2b1c2ef581c983e7bec2a2a39:2088ebb90750e59f3ef13a6d3f7dadbc890f845b47754f0e9cc992380a5e4178d7ee17d73bf89331144d3484b1d2fef6d79d96a59c07da8641844042a657b81d"
     },
     {
       "password": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      "hash": "1d25fda7afb09498339b2cd26d2f3876:544442e86e50d393e278c643c6216737469f4031c63bc41e3282df62159964384aefa2e99d9b898deeb53e877a36308e3050da1128bad4cd15f4e419e711346c"
+      "hash": "eb1a8604bb10f60d89eeaacb5cc3f58a:a1be81d3d006bd1fad4628e9c3f32ddba0409c14367fa3370f1c1f2da60c562237c068dbd169d80e1d0a834a9bc4f4c8d079abdbd1e0d1dfd98839c20a615eb7"
     }
   ],
   "passwordChecks": [
     {
-      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
+      "hash": "e590f740cd665f62813480bf8ee9d32c:dc693944d250238858efbf5fff397f6aca82f349412451b5843d68472ea3076b9602d8adf243bba63b87cca95f49a3647dc25d051d8de79c5bc076a48c78970a",
       "password": "correct horse battery staple",
       "ok": true
     },
     {
-      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
+      "hash": "e590f740cd665f62813480bf8ee9d32c:dc693944d250238858efbf5fff397f6aca82f349412451b5843d68472ea3076b9602d8adf243bba63b87cca95f49a3647dc25d051d8de79c5bc076a48c78970a",
       "password": "correct horse battery stapl",
       "ok": false
     },
     {
-      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
+      "hash": "e590f740cd665f62813480bf8ee9d32c:dc693944d250238858efbf5fff397f6aca82f349412451b5843d68472ea3076b9602d8adf243bba63b87cca95f49a3647dc25d051d8de79c5bc076a48c78970a",
       "password": "Correct horse battery staple",
       "ok": false
     },
     {
-      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
+      "hash": "e590f740cd665f62813480bf8ee9d32c:dc693944d250238858efbf5fff397f6aca82f349412451b5843d68472ea3076b9602d8adf243bba63b87cca95f49a3647dc25d051d8de79c5bc076a48c78970a",
       "password": "",
       "ok": false
     },
     {
-      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062",
+      "hash": "00e73864dd40ca631a6ae98e0989e54e:6e28d96e544aff4a0e5aa37d67aea04c25f3432652e9439253b111b8ed053d96a49c7dda85fcf03f6b9d2c34ad488b276d36c00b3efe2d87b7b7a4ecc359a84e",
       "password": "é",
       "ok": true
     },
     {
-      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062",
+      "hash": "00e73864dd40ca631a6ae98e0989e54e:6e28d96e544aff4a0e5aa37d67aea04c25f3432652e9439253b111b8ed053d96a49c7dda85fcf03f6b9d2c34ad488b276d36c00b3efe2d87b7b7a4ecc359a84e",
       "password": "e",
       "ok": false
     },
     {
-      "hash": "58b1e9809b21ce27738e20cf5aa0f72d:8d1996cd9d982258c3b557596314ee3d0e255808163a3864c45e39374d3053ccec105af4c68d0589682774f59d162e45db8ef02656488a7a9ec4b890c34e42ca",
+      "hash": "d8e88b8d8266120a3132240a61b86582:b1b1a985e74be4227f12e8e7719104016e72c256bd82467c22b4fc3a692ceaed7f8e8693b14d01e735fac060fcea5278784c0f2b36583550948a99972da4d6ed",
       "password": "pass",
       "ok": true
     }
@@ -75,62 +75,62 @@
     {
       "secret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "",
-      "ciphertext": "3a4923010ca566ebfc085e3642e52d38d88af2c2ad1922ce6f1218975d0014530f02d645538e7843"
+      "ciphertext": "f3db55fe4a79d1348ce40fae835622e4c38cf8f374dca95585d95920dcdd3256ed5d57b4ba1e17d1"
     },
     {
       "secret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "JBSWY3DPEHPK3PXP",
-      "ciphertext": "482dbe4b8a27be98bee1c70767ccbe110f5daae9f74d44f269f3924a39223041e4f4c3fe01ae873b02d219dcb16575177347653615671896"
+      "ciphertext": "b51b61c542fb84e5ddfe34b90f7c0e6dd36fa5fb4c4b36d689c19216d1359debe5e109efed11cc8eae287032699c45f15df72a8c4277e327"
     },
     {
       "secret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "[\"code-1\",\"code-2\"]",
-      "ciphertext": "33aa34b9a573d203eeea5d08e550d55530174a5dd4fa48e44a00dd2d26f3f809d50613a332e0dfde416f9c7d719198e88897df2b9a9303005b5906"
+      "ciphertext": "f87406e479f2cd422ba2efce3709678d73fa958310cbe11b05a36ceebe83c8f322e843c07a70354290552f986943c0e33e573b8a7c94d5d268dd8e"
     },
     {
       "secret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "ünïcödé",
-      "ciphertext": "fa3538cadcab7e49f43f0e297f97cf6a44af4d1c4a0cc499e15df6c1aa28c5ed77ca2749b936f89d2066f5e199445403416724"
+      "ciphertext": "ebdaf0b25e7d563f7ddbd735d6a14a9af63fba60800a05747b53e1b91565c614adc1646e74f5bfd20d0eb93d55392525e17fa8"
     },
     {
       "secret": "short",
       "plaintext": "",
-      "ciphertext": "c322a252c27de421111b6eb8e96d421917181a373309b1525e771700b2cdb2e4761b317ca5fe256c"
+      "ciphertext": "838c946cfe8f4cf580e4811ad964d72fb5ad951dc758f0fc7586192c8f491c1734c87761d82d7b17"
     },
     {
       "secret": "short",
       "plaintext": "JBSWY3DPEHPK3PXP",
-      "ciphertext": "0d6af5d7183d58babc49fe941590d6c73c493c7496af3b17d087dc23d341d177fc8b9eb4bf1be6c49881ad66cddd25939558b52627af6a1c"
+      "ciphertext": "145c442979b9d222df500c29578c0efdd5c79f4682309aae3baf1b1f1b3296e13e188e01cb710726352c13ede8005a6e35688d8a82fc5005"
     },
     {
       "secret": "short",
       "plaintext": "[\"code-1\",\"code-2\"]",
-      "ciphertext": "5e8e772d89eb0a4158274cce8c11469bc9cf74fb3466ab2d8d50b7c07d29144d601c48b8c448e0259bb6001c4c721c68dd30a13c78b5dd3188e1c4"
+      "ciphertext": "7c3f838d78420118b949a3499600ab1e208754cbbcf38f924b3d0f1c93532cfd5c02532266154f47848cb95806b0d9d8ba880485445defe5ce68d8"
     },
     {
       "secret": "short",
       "plaintext": "ünïcödé",
-      "ciphertext": "7b18dc89f43a221193960f9c93bcfe1aecb5a2bf23a4b2489bc048f4e1d9f67dd51c85ed3c3671e09b02d5e39beeaa3da0e2d4"
+      "ciphertext": "50292f6de7c31af19ef5fc177066a29d8a43a050eb53bc2075958e9d5e1fc6e9c3c82b02e4a8b7a9118db0e7e794cb16a45a31"
     },
     {
       "secret": "ünïcödé secret",
       "plaintext": "",
-      "ciphertext": "fe958b0eb0f7427b63508252a2451b41599c6aaccea10bdbe5424c434aa70072661072cbd603ee9f"
+      "ciphertext": "146bb448af1808b17a5718e1709c20e8b141b7f5890f5846ca021ecc0ce5d3c78deb930ee561297b"
     },
     {
       "secret": "ünïcödé secret",
       "plaintext": "JBSWY3DPEHPK3PXP",
-      "ciphertext": "e4fb3d12c5aefb05da18215c51ad64ffe2bdda4bf6fd84eef7df31c6d7ec31bb88900bf0c2bdf0d4611df0754b01d6cdb0f4c0c43952cd98"
+      "ciphertext": "869e589382228edcdca683aa4a79e53d1bd11ff55c10ba3b1d433511ad91baeac4bcfdd8570e85c6ed30d335ec76f968befc898ab5136bc1"
     },
     {
       "secret": "ünïcödé secret",
       "plaintext": "[\"code-1\",\"code-2\"]",
-      "ciphertext": "111f30d36d71f5a2c27bef876b71063acfc4a037ba518f96531afab1474659d323296fb79c04aeaea228298a8d8a2c961d284936436d3e6e287b6f"
+      "ciphertext": "f8b5f3a32f8464f517025ab82656ca7fc07e81145d02fe97101d67863006ed45d9b829ffbafb39abdcc481dde627a20d7fc611981f13b02cf86502"
     },
     {
       "secret": "ünïcödé secret",
       "plaintext": "ünïcödé",
-      "ciphertext": "5c2e026901d16a9be3efa0e1de79c3e89545fdd2034741efa26ac1c2d920b7ef7e14aee95b60ddadb3637d4d48cb0e657cb107"
+      "ciphertext": "c0cacb7ab529253c13d188544d774d865d73344e856bf3ef392d3c8f4237420745c4416f4db3fd40b938aed605b92de41d8c75"
     }
   ],
   "symmetricVersioned": [
@@ -142,7 +142,7 @@
       "currentVersion": 1,
       "legacySecret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "versioned-plaintext",
-      "ciphertext": "$ba$1$660b83fd47cd583277cc80c917b817f69f35c556adbbf3b0e79d6c62bf9d40eb0aa297ee15ad5b19da781182a767279088a2687914776aebff1b4b",
+      "ciphertext": "$ba$1$0825cce5b0248a2b9648176979dd0985deccd7821cef79f1aebee2aec4dca091596b815ac6ca68decbee5520e3f52d09c9b2a40f09957dee2e0955",
       "decrypted": "versioned-plaintext"
     },
     {
@@ -153,7 +153,7 @@
       "currentVersion": 2,
       "legacySecret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "versioned-plaintext",
-      "ciphertext": "$ba$2$dc789891c506120757b4b7667943a56f77ea1d415ff53fa25dd168dba9789c85362fe34f79152d109530baee8c83244a57f2f36e7fc5fc3eb0085c",
+      "ciphertext": "$ba$2$54eed8b1b73e147407949e66c712c0df1001d50d35724e6d5771688ad6375437c50d1d9da720b7e791b5f61f7a3152dd43d640e2bcd04361df23a9",
       "decrypted": "versioned-plaintext"
     },
     {
@@ -164,7 +164,7 @@
       "currentVersion": 2,
       "legacySecret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "legacy-plaintext",
-      "ciphertext": "9142cf80938eb18d6a7fe8e8e13195199a94f385fa66a37cdc8c23a173ceef2df821d82a507ca0e871f94402850ced71dd3b1884a9265606",
+      "ciphertext": "3dc0d3dff4bc8d0f2e08fcfe4e35c036979e21c1c8c444e733bd8f823eac2da8f91872a401a4b7f40b67fd72cf938b23e173081a2aeb7ec7",
       "decrypted": "legacy-plaintext"
     }
   ],
@@ -673,6 +673,64 @@
       {
         "in": "​a",
         "out": "​a"
+      }
+    ],
+    "toLowerCase": [
+      {
+        "in": "ABC",
+        "out": "abc"
+      },
+      {
+        "in": "ÉMILE@X.COM",
+        "out": "émile@x.com"
+      },
+      {
+        "in": "İstanbul",
+        "out": "i̇stanbul"
+      },
+      {
+        "in": "ΟΔΟΣ",
+        "out": "οδος"
+      },
+      {
+        "in": "ΣΑΣ Σ",
+        "out": "σας σ"
+      },
+      {
+        "in": "Straße",
+        "out": "straße"
+      },
+      {
+        "in": "ẞ",
+        "out": "ß"
+      },
+      {
+        "in": "ǅ",
+        "out": "ǆ"
+      },
+      {
+        "in": "ΌΣΟΣ.",
+        "out": "όσος."
+      },
+      {
+        "in": "KELVİN K",
+        "out": "kelvi̇n k"
+      },
+      {
+        "in": "ＡＢＣ",
+        "out": "ａｂｃ"
+      },
+      {
+        "in": "Ⅻ",
+        "out": "ⅻ"
+      },
+      {
+        "in": "σΣ",
+        "out": "σς"
+      },
+      {
+        "in": "AΣb",
+        "out": "aσb"
       }
     ],
     "textDecoder": [
