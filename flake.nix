@@ -44,7 +44,7 @@
 
           shellHook = ''
             export PATH="$PWD/scripts:$PATH"
-            echo "go-better-auth dev shell: $(go version | cut -d' ' -f3), postgres $(postgres --version | awk '{print $3}'), node $(node --version), bun $(bun --version)"
+            echo "go-better-auth dev shell: $(go version | cut -d' ' -f3), postgres $(postgres --version | awk '{print $3}'), node $(node --version), bun $(bun --version)" >&2
           '';
         };
       });
