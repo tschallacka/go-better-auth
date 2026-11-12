@@ -176,6 +176,12 @@ out.builtins = {
     (s) => ({ in: s, out: Number.isNaN(parseInt(s, 10)) ? null : String(parseInt(s, 10)) }),
   ),
   trim: [" a ", "\t\n a ", "﻿a　", " a ", "​a"].map((s) => ({ in: s, out: s.trim() })),
+  // TextDecoder (what symmetricDecrypt uses) on malformed UTF-8: one U+FFFD
+  // per maximal invalid subpart, per the WHATWG decoder.
+  textDecoder: [
+    "61", "c3bc", "ff", "c3", "c328", "e0a4", "e0a441", "e080", "eda080", "f09f98", "f09f9841", "f4908080",
+    "c0af", "80bf", "f8888080", "e282ac80", "61ff62", "efbbbf61",
+  ].map((h) => ({ hex: h, out: new TextDecoder().decode(Buffer.from(h, "hex")) })),
 };
 
 process.stdout.write(JSON.stringify(out, null, 2) + "\n");

@@ -80,6 +80,31 @@ func TestTrimMatchesNode(t *testing.T) {
 	}
 }
 
+func TestDecodeUTF8MatchesTextDecoder(t *testing.T) {
+	for _, c := range testvectors.LoadCrypto(t).Builtins.TextDecoder {
+		b, _ := hex.DecodeString(c.Hex)
+		if got := DecodeUTF8(b); got != c.Out {
+			t.Errorf("DecodeUTF8(%s) = %q; node %q", c.Hex, got, c.Out)
+		}
+	}
+	if got := string(EncodeUTF8("\xef\xbb\xbfa\xff")); got != "\xef\xbb\xbfa\xef\xbf\xbd" {
+		t.Errorf("EncodeUTF8 dropped a leading BOM or kept invalid bytes: %q", got)
+	}
+}
+
+func FuzzDecodeUTF8(f *testing.F) {
+	f.Add([]byte("\xe0\xa4A\xff"))
+	f.Fuzz(func(t *testing.T, b []byte) {
+		got := DecodeUTF8(b)
+		if !utf8.ValidString(got) {
+			t.Fatalf("DecodeUTF8(%x) = invalid %q", b, got)
+		}
+		if utf8.Valid(b) && !(len(b) >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF) && got != string(b) {
+			t.Fatalf("valid input changed: %x -> %q", b, got)
+		}
+	})
+}
+
 func TestUTF16Len(t *testing.T) {
 	for s, want := range map[string]int{"": 0, "abc": 3, "ü": 1, "€": 1, "😀": 2} {
 		if got := UTF16Len(s); got != want {

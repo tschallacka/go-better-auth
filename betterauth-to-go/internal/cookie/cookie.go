@@ -123,12 +123,20 @@ func Serialize(name, value string, opt Options, now time.Time) (string, error) {
 // SerializeSigned writes "value.signature", URI-encoded, as setSignedCookie
 // does.
 func SerializeSigned(name, value string, secret []byte, opt Options, now time.Time) (string, error) {
-	return serialize(name, SignValue(value, secret), opt, now)
+	signed, err := SignValue(value, secret)
+	if err != nil {
+		return "", err
+	}
+	return serialize(name, signed, opt, now)
 }
 
 // SignValue returns the encoded "value.signature" a signed cookie carries.
-func SignValue(value string, secret []byte) string {
-	return jsuri.EncodeURIComponent(value + "." + crypto.Sign(value, secret))
+func SignValue(value string, secret []byte) (string, error) {
+	sig, err := crypto.Sign(value, secret)
+	if err != nil {
+		return "", err
+	}
+	return jsuri.EncodeURIComponent(value + "." + sig), nil
 }
 
 // serialize follows better-call's _serialize line by line, including its

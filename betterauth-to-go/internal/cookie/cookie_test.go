@@ -1,11 +1,15 @@
 package cookie
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/tschallacka/go-better-auth/betterauth-to-go/internal/testvectors"
 )
@@ -94,7 +98,10 @@ func TestParse(t *testing.T) {
 
 func TestGetSignedPrefixes(t *testing.T) {
 	secret := []byte("secret")
-	signed := SignValue("tok", secret)
+	signed, err := SignValue("tok", secret)
+	if err != nil {
+		t.Fatal(err)
+	}
 	cookies := Parse("__Secure-st=" + signed + "; __Host-h=" + signed)
 	if v, s := GetSigned(cookies, "st", PrefixSecure, secret); s != Valid || v != "tok" {
 		t.Errorf("secure prefix: %q, %d", v, s)
@@ -107,6 +114,19 @@ func TestGetSignedPrefixes(t *testing.T) {
 	}
 	if _, s := GetSigned(cookies, "st", Prefix("other"), secret); s != Absent {
 		t.Error("unknown prefix found a cookie")
+	}
+}
+
+func TestEmptySecretNeverValidates(t *testing.T) {
+	if _, err := SerializeSigned("st", "tok", nil, Options{}, now); err == nil {
+		t.Error("signed a cookie with an empty secret")
+	}
+	// "tok." + base64(HMAC-SHA256(empty key, "tok")): computable by anyone.
+	mac := hmac.New(sha256.New, nil)
+	mac.Write([]byte("tok"))
+	forged := map[string]string{"st": "tok." + base64.StdEncoding.EncodeToString(mac.Sum(nil))}
+	if v, s := GetSigned(forged, "st", NoPrefix, nil); s == Valid {
+		t.Errorf("empty-key signature accepted as %q", v)
 	}
 }
 
@@ -165,11 +185,17 @@ func FuzzGetSigned(f *testing.F) {
 		if v, s := GetSigned(Parse(header), "st", NoPrefix, secret); s == Valid && !strings.Contains(header, v) && !strings.Contains(header, "%") {
 			t.Fatalf("valid result %q does not come from the header", v)
 		}
-		// A value signed here reads back unchanged.
-		if value == "" {
+		// A value signed here reads back unchanged. JavaScript strings are
+		// always valid Unicode; an invalid byte encodes to an escape that
+		// decodeURIComponent refuses, so the round trip only holds for UTF-8.
+		if value == "" || !utf8.ValidString(value) {
 			return
 		}
-		got, s := GetSigned(map[string]string{"st": mustDecode(t, SignValue(value, secret))}, "st", NoPrefix, secret)
+		signed, err := SignValue(value, secret)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, s := GetSigned(map[string]string{"st": mustDecode(t, signed)}, "st", NoPrefix, secret)
 		if s != Valid || got != value {
 			t.Fatalf("round trip of %q = %q, %d", value, got, s)
 		}

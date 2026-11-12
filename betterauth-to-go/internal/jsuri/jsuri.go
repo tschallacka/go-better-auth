@@ -167,6 +167,85 @@ func Atob(s string) ([]byte, error) {
 	return out, nil
 }
 
+// DecodeUTF8 is new TextDecoder().decode(b): a leading byte-order mark is
+// dropped and every maximal invalid subpart becomes one U+FFFD, following the
+// WHATWG UTF-8 decoder. Go's own conversions group replacements differently.
+func DecodeUTF8(b []byte) string {
+	if len(b) >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF {
+		b = b[3:]
+	}
+	return decodeUTF8(b)
+}
+
+// decodeUTF8 is the WHATWG decoder without the byte-order-mark step.
+func decodeUTF8(b []byte) string {
+	var out strings.Builder
+	out.Grow(len(b))
+	var cp rune
+	needed, seen := 0, 0
+	lower, upper := byte(0x80), byte(0xBF)
+	for i := 0; i < len(b); {
+		c := b[i]
+		if needed == 0 {
+			i++
+			switch {
+			case c <= 0x7F:
+				out.WriteByte(c)
+			case 0xC2 <= c && c <= 0xDF:
+				needed, cp = 1, rune(c&0x1F)
+			case 0xE0 <= c && c <= 0xEF:
+				if c == 0xE0 {
+					lower = 0xA0
+				}
+				if c == 0xED {
+					upper = 0x9F
+				}
+				needed, cp = 2, rune(c&0x0F)
+			case 0xF0 <= c && c <= 0xF4:
+				if c == 0xF0 {
+					lower = 0x90
+				}
+				if c == 0xF4 {
+					upper = 0x8F
+				}
+				needed, cp = 3, rune(c&0x07)
+			default:
+				out.WriteRune(utf8.RuneError)
+			}
+			continue
+		}
+		if c < lower || c > upper {
+			// Emit the replacement and reprocess this byte as a fresh start.
+			needed, seen, cp = 0, 0, 0
+			lower, upper = 0x80, 0xBF
+			out.WriteRune(utf8.RuneError)
+			continue
+		}
+		lower, upper = 0x80, 0xBF
+		cp = cp<<6 | rune(c&0x3F)
+		seen++
+		i++
+		if seen == needed {
+			out.WriteRune(cp)
+			needed, seen, cp = 0, 0, 0
+		}
+	}
+	if needed != 0 {
+		out.WriteRune(utf8.RuneError)
+	}
+	return out.String()
+}
+
+// EncodeUTF8 is new TextEncoder().encode(s) for a Go string: a JavaScript
+// string cannot carry invalid UTF-8, so such bytes are replaced the way
+// DecodeUTF8 would read them.
+func EncodeUTF8(s string) []byte {
+	if utf8.ValidString(s) {
+		return []byte(s)
+	}
+	return []byte(decodeUTF8([]byte(s)))
+}
+
 // UTF16Len is a JavaScript string's length for s.
 func UTF16Len(s string) int {
 	n := 0

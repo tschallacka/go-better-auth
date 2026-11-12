@@ -2,12 +2,21 @@ package crypto
 
 import (
 	"bytes"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"errors"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"regexp"
 	"strconv"
 	"strings"
 	"testing"
+
+	"golang.org/x/crypto/chacha20poly1305"
 
 	"github.com/tschallacka/go-better-auth/betterauth-to-go/internal/testvectors"
 )
@@ -199,8 +208,8 @@ func TestParseEnvelope(t *testing.T) {
 func TestSignMatchesLibrary(t *testing.T) {
 	v := testvectors.LoadCrypto(t)
 	for _, s := range v.Signatures {
-		if got := Sign(s.Value, []byte(s.Secret)); got != s.Signature {
-			t.Errorf("Sign(%q) = %q; library %q", s.Value, got, s.Signature)
+		if got, err := Sign(s.Value, []byte(s.Secret)); err != nil || got != s.Signature {
+			t.Errorf("Sign(%q) = %q, %v; library %q", s.Value, got, err, s.Signature)
 		}
 		if !VerifySignature(s.Signature, s.Value, []byte(s.Secret)) {
 			t.Errorf("VerifySignature rejects the library's signature of %q", s.Value)
@@ -209,6 +218,107 @@ func TestSignMatchesLibrary(t *testing.T) {
 			t.Errorf("VerifySignature accepts a signature for another value")
 		}
 	}
+}
+
+func TestEmptySecretIsRefused(t *testing.T) {
+	if _, err := Sign("tok", nil); !errors.Is(err, ErrEmptySecret) {
+		t.Errorf("Sign with an empty secret: %v; want ErrEmptySecret", err)
+	}
+	// A signature anyone can compute with the empty key must not verify.
+	mac := hmac.New(sha256.New, nil)
+	mac.Write([]byte("tok"))
+	forged := base64.StdEncoding.EncodeToString(mac.Sum(nil))
+	if VerifySignature(forged, "tok", nil) || VerifySignature(forged, "tok", []byte{}) {
+		t.Error("a signature made with the empty key verified")
+	}
+}
+
+func TestDecryptReplacesInvalidUTF8LikeTextDecoder(t *testing.T) {
+	aead, _ := chacha20poly1305.NewX(symmetricKey("secret"))
+	nonce := make([]byte, aead.NonceSize())
+	ct := hex.EncodeToString(aead.Seal(nonce, nonce, []byte("a\xe0\xa4A\xff"), nil))
+	got, err := Decrypt("secret", ct)
+	if err != nil || got != "a�A�" {
+		t.Errorf("Decrypt = %q, %v; want TextDecoder's %q", got, err, "a�A�")
+	}
+	// Encrypt sees what TextEncoder would: a JavaScript string never holds
+	// invalid UTF-8, so the bytes are replaced before sealing.
+	ct, err = Encrypt(rand.Reader, "secret", "x\xff")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := Decrypt("secret", ct); got != "x�" {
+		t.Errorf("round trip of invalid UTF-8 = %q; want %q", got, "x�")
+	}
+}
+
+// TestComparesAreConstantTime guards D12 and the signature check at the source
+// level: no test of outputs can tell a constant-time compare from ==.
+func TestComparesAreConstantTime(t *testing.T) {
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "crypto.go", nil, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{
+		"VerifyPassword":    "ConstantTimeEqual",
+		"VerifySignature":   "hmac.Equal",
+		"ConstantTimeEqual": "subtle.ConstantTimeCompare",
+	}
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok || want[fn.Name.Name] == "" {
+			continue
+		}
+		calls := false
+		ast.Inspect(fn.Body, func(n ast.Node) bool {
+			switch e := n.(type) {
+			case *ast.CallExpr:
+				var name string
+				switch f := e.Fun.(type) {
+				case *ast.Ident:
+					name = f.Name
+				case *ast.SelectorExpr:
+					if x, ok := f.X.(*ast.Ident); ok {
+						name = x.Name + "." + f.Sel.Name
+					}
+				}
+				if name == want[fn.Name.Name] {
+					calls = true
+				}
+				if name == "bytes.Equal" || name == "strings.EqualFold" {
+					t.Errorf("%s uses %s", fn.Name.Name, name)
+				}
+			case *ast.BinaryExpr:
+				if (e.Op == token.EQL || e.Op == token.NEQ) && !trivialOperand(e.X) && !trivialOperand(e.Y) {
+					t.Errorf("%s compares with %s at %s", fn.Name.Name, e.Op, fset.Position(e.Pos()))
+				}
+			}
+			return true
+		})
+		if !calls {
+			t.Errorf("%s does not call %s", fn.Name.Name, want[fn.Name.Name])
+		}
+		delete(want, fn.Name.Name)
+	}
+	for name := range want {
+		t.Errorf("function %s not found", name)
+	}
+}
+
+// trivialOperand allows comparisons that cannot leak a secret: literals, nil,
+// and lengths.
+func trivialOperand(e ast.Expr) bool {
+	switch v := e.(type) {
+	case *ast.BasicLit:
+		return true
+	case *ast.Ident:
+		return v.Name == "nil"
+	case *ast.CallExpr:
+		f, ok := v.Fun.(*ast.Ident)
+		return ok && f.Name == "len"
+	}
+	return false
 }
 
 func TestConstantTimeEqualMatchesLibrary(t *testing.T) {

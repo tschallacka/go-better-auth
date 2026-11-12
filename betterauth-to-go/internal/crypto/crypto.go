@@ -98,7 +98,7 @@ func Encrypt(rand io.Reader, secret, plaintext string) (string, error) {
 	if _, err := io.ReadFull(rand, nonce); err != nil {
 		return "", fmt.Errorf("crypto: reading nonce: %w", err)
 	}
-	return hex.EncodeToString(aead.Seal(nonce, nonce, []byte(plaintext), nil)), nil
+	return hex.EncodeToString(aead.Seal(nonce, nonce, jsuri.EncodeUTF8(plaintext), nil)), nil
 }
 
 // Decrypt opens a bare-hex payload written by Encrypt or by the library.
@@ -118,7 +118,7 @@ func Decrypt(secret, data string) (string, error) {
 	if err != nil {
 		return "", ErrDecrypt
 	}
-	return string(plain), nil
+	return jsuri.DecodeUTF8(plain), nil
 }
 
 // envelopePrefix marks a versioned payload: "$ba$<version>$<hex>".
@@ -189,18 +189,28 @@ func (k Keyring) Decrypt(data string) (string, error) {
 	return "", errors.New("crypto: bare-hex payload and no legacy secret")
 }
 
+// ErrEmptySecret is returned for a zero-length signing key. The library
+// cannot sign or verify with one either (WebCrypto rejects it), and an empty
+// HMAC key would let anyone mint valid signatures.
+var ErrEmptySecret = errors.New("crypto: empty secret")
+
 // Sign returns base64(HMAC-SHA256(secret, value)), standard alphabet with
-// padding. The library cannot sign with an empty secret (WebCrypto rejects a
-// zero-length HMAC key); configuration guarantees one, so this does not check.
-func Sign(value string, secret []byte) string {
+// padding, as makeSignature does.
+func Sign(value string, secret []byte) (string, error) {
+	if len(secret) == 0 {
+		return "", ErrEmptySecret
+	}
 	mac := hmac.New(sha256.New, secret)
 	mac.Write([]byte(value))
-	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
+	return base64.StdEncoding.EncodeToString(mac.Sum(nil)), nil
 }
 
 // VerifySignature reports whether sig, decoded the way atob decodes it, is the
-// HMAC of value. Any decoding failure is a mismatch.
+// HMAC of value. Any decoding failure, and an empty secret, is a mismatch.
 func VerifySignature(sig, value string, secret []byte) bool {
+	if len(secret) == 0 {
+		return false
+	}
 	got, err := jsuri.Atob(sig)
 	if err != nil {
 		return false

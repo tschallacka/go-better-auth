@@ -95,6 +95,10 @@ type Builtins struct {
 		In  string `json:"in"`
 		Out string `json:"out"`
 	} `json:"trim"`
+	TextDecoder []struct {
+		Hex string `json:"hex"`
+		Out string `json:"out"`
+	} `json:"textDecoder"`
 }
 
 // FixturesDir is the absolute path of testdata/fixtures.

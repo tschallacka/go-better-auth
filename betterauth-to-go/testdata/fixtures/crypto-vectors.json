@@ -3,70 +3,70 @@
   "passwordHashes": [
     {
       "password": "correct horse battery staple",
-      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b"
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa"
     },
     {
       "password": "p",
-      "hash": "104af913e0e697f6ce572ae5e8c71baf:b8836f64dba6e0a19ab7db889c66b800201453ea8090970f892b597970eb4c041a8b99a1b16a7296d1a8d01ae9f6cee1e5e1ecdd616e3db5db1f46b7c17945fd"
+      "hash": "d0e0ea15b0171bd0b1b3f1c13e656997:101d6b03c2a3821a1cfe7667d1c5a2b524a5df7f4417b28d01a05dbe61161169e413637559114f0e038c8a5c92bab5c02496e9b2b32f5f0cc0b132fa2d87f654"
     },
     {
       "password": "ünïcödé-pässwörd",
-      "hash": "08cb9bb4e04d11066f7b3823645308b4:67fa38e47ef7ab978cf8a5b5606c0e6d4c5867a2fe43e065971695f23d5d6be1ff98c50b777319c1d15eebd950112ad34225b33e5d07a59a8f36fec3a5556fd4"
+      "hash": "d2bba5d8ff6fc74b95ab3cddfcffbab9:e2ad8ae2b65b0478d09405ef6b6799405f77c65b29e2bf658d8d74e01a16a6bd37a9a33daf97109144915ebc0389b639fae696613f484e388246da8ce5b48716"
     },
     {
       "password": "ｐａｓｓ",
-      "hash": "540d6c6f270e9f519d85e3b19aa3b2df:305c5815643719714482304e67c9cb229979ab6adf8b16890620f2b3655b699f8a6bcba598e1d28bd6afb2ccfa0f73d516d430c70a575eaeb8388a01b81d2435"
+      "hash": "58b1e9809b21ce27738e20cf5aa0f72d:8d1996cd9d982258c3b557596314ee3d0e255808163a3864c45e39374d3053ccec105af4c68d0589682774f59d162e45db8ef02656488a7a9ec4b890c34e42ca"
     },
     {
       "password": "é",
-      "hash": "a1a83f9c10432f8920324b3b47e899d0:275e6e28789c5af1ad43525863e074b7298aea4cda918bb11d94b0be78a3be88ec323ca8db4747ed2d428550f641dd88ba43008dee8a9c71b9fd259f366a6636"
+      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062"
     },
     {
       "password": "é",
-      "hash": "53aeb24e875349248c51db9fa655d949:d18a6ec363bd434038629d09f5145cad773ffb8dbff036eb8436ca63cc2f433a82eba02a696f626dd613a79c76bbbfc45d085114ffe8e746c2e26de9302bb034"
+      "hash": "b131efd4e3d204358972947bbb2b9f60:0535c69bdea04918b34a36a67671d912951e33b3be36d6f8d6cace611b64d9785eb7880efeb5425321aa3d07a833259211479b9ba71741a7c51a3043e83e93b4"
     },
     {
       "password": "colon:inside:password",
-      "hash": "a6a8c6043f4d433ec36535788e086e32:90a8136a988c91e14e7a47b82d1a99c2283e864e9606e989431568819e6888fb1342bd62433e6292e172d69031007d2c20563d0ea97dc68d3e6ee2bde66c7b5d"
+      "hash": "ba17717533aad32a23fcd0a3122bc2b3:e19e1109ad4520c9c41cf73148028e4ff8b91dc5838e6e52498b8bb7562fb0087829bfa1dabc4d24e0a0a3623cc713671180dba3b61b39106ac2490e7b43101a"
     },
     {
       "password": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      "hash": "ed6a48e9584eef5ce3539f87926389c1:8bd0a743e17a0c55bbeafd9a9432072ec35f4414a6e6670eafd68503706c08c14b8494ae4ee3029c84b9793e93b5cc9ce9e16bf77f0e1e57118c146fce4848e6"
+      "hash": "1d25fda7afb09498339b2cd26d2f3876:544442e86e50d393e278c643c6216737469f4031c63bc41e3282df62159964384aefa2e99d9b898deeb53e877a36308e3050da1128bad4cd15f4e419e711346c"
     }
   ],
   "passwordChecks": [
     {
-      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b",
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
       "password": "correct horse battery staple",
       "ok": true
     },
     {
-      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b",
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
       "password": "correct horse battery stapl",
       "ok": false
     },
     {
-      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b",
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
       "password": "Correct horse battery staple",
       "ok": false
     },
     {
-      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b",
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
       "password": "",
       "ok": false
     },
     {
-      "hash": "a1a83f9c10432f8920324b3b47e899d0:275e6e28789c5af1ad43525863e074b7298aea4cda918bb11d94b0be78a3be88ec323ca8db4747ed2d428550f641dd88ba43008dee8a9c71b9fd259f366a6636",
+      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062",
       "password": "é",
       "ok": true
     },
     {
-      "hash": "a1a83f9c10432f8920324b3b47e899d0:275e6e28789c5af1ad43525863e074b7298aea4cda918bb11d94b0be78a3be88ec323ca8db4747ed2d428550f641dd88ba43008dee8a9c71b9fd259f366a6636",
+      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062",
       "password": "e",
       "ok": false
     },
     {
-      "hash": "540d6c6f270e9f519d85e3b19aa3b2df:305c5815643719714482304e67c9cb229979ab6adf8b16890620f2b3655b699f8a6bcba598e1d28bd6afb2ccfa0f73d516d430c70a575eaeb8388a01b81d2435",
+      "hash": "58b1e9809b21ce27738e20cf5aa0f72d:8d1996cd9d982258c3b557596314ee3d0e255808163a3864c45e39374d3053ccec105af4c68d0589682774f59d162e45db8ef02656488a7a9ec4b890c34e42ca",
       "password": "pass",
       "ok": true
     }
@@ -75,62 +75,62 @@
     {
       "secret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "",
-      "ciphertext": "2cd7d5534c77445f44005891462cc0099a88388cac6f3198834af2ed1ce62d3211e83f4d7d5d2f2b"
+      "ciphertext": "3a4923010ca566ebfc085e3642e52d38d88af2c2ad1922ce6f1218975d0014530f02d645538e7843"
     },
     {
       "secret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "JBSWY3DPEHPK3PXP",
-      "ciphertext": "b1f451bee12d8b7b67a796757812fc23d9b9133c26aa937098c114da1a52129adf7dc7863752a1b194f272d75e165a925bdb4fa71e1cc5a1"
+      "ciphertext": "482dbe4b8a27be98bee1c70767ccbe110f5daae9f74d44f269f3924a39223041e4f4c3fe01ae873b02d219dcb16575177347653615671896"
     },
     {
       "secret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "[\"code-1\",\"code-2\"]",
-      "ciphertext": "fd5a8509e284717880aba984ac5d4723586cb3ed576b1029aa761d934a4d5784d6fc919435df03d16bed0eafa64b7009781c67c0a6b6310ea74da5"
+      "ciphertext": "33aa34b9a573d203eeea5d08e550d55530174a5dd4fa48e44a00dd2d26f3f809d50613a332e0dfde416f9c7d719198e88897df2b9a9303005b5906"
     },
     {
       "secret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "ünïcödé",
-      "ciphertext": "f2f6da66a93a5eae1c4d10e401bc8d8bdd57a68ddac6ab5bf1ba31cef65a1a0bc7ba049c44a84dbfc6dd966573febd4cee3215"
+      "ciphertext": "fa3538cadcab7e49f43f0e297f97cf6a44af4d1c4a0cc499e15df6c1aa28c5ed77ca2749b936f89d2066f5e199445403416724"
     },
     {
       "secret": "short",
       "plaintext": "",
-      "ciphertext": "4b39e08ef4c1bfd0b3a07a29ba5713753abb8138130f9b9e7a3e5abd670327cf1d5ab1c2bf39401f"
+      "ciphertext": "c322a252c27de421111b6eb8e96d421917181a373309b1525e771700b2cdb2e4761b317ca5fe256c"
     },
     {
       "secret": "short",
       "plaintext": "JBSWY3DPEHPK3PXP",
-      "ciphertext": "b0442d5b2e7b514a1f11c87752cd478a7629c8e6a5e1d359e7a4aea38d65e45a963b6ab3bd075b9b1fea72dc74ac0722529be8cbc07949d0"
+      "ciphertext": "0d6af5d7183d58babc49fe941590d6c73c493c7496af3b17d087dc23d341d177fc8b9eb4bf1be6c49881ad66cddd25939558b52627af6a1c"
     },
     {
       "secret": "short",
       "plaintext": "[\"code-1\",\"code-2\"]",
-      "ciphertext": "2bc6a71342c90d52f497922b188ec798c2fc8f1eefa2785791605fb910dc01231e397c111256867a561f7a1ccbae2c4977ab369c1c1c4e56f1e8a2"
+      "ciphertext": "5e8e772d89eb0a4158274cce8c11469bc9cf74fb3466ab2d8d50b7c07d29144d601c48b8c448e0259bb6001c4c721c68dd30a13c78b5dd3188e1c4"
     },
     {
       "secret": "short",
       "plaintext": "ünïcödé",
-      "ciphertext": "d8716afeaea4b62f53bf6de19f1116f80fef1077aaa310381349a8591f98412bba3ff646aa56f126477688573eda49a2e8630e"
+      "ciphertext": "7b18dc89f43a221193960f9c93bcfe1aecb5a2bf23a4b2489bc048f4e1d9f67dd51c85ed3c3671e09b02d5e39beeaa3da0e2d4"
     },
     {
       "secret": "ünïcödé secret",
       "plaintext": "",
-      "ciphertext": "9c874734f731466ec83e9754678455957b88abfe9f8d233db6d7d7a1b4efab5aa03825c33bd8b3c4"
+      "ciphertext": "fe958b0eb0f7427b63508252a2451b41599c6aaccea10bdbe5424c434aa70072661072cbd603ee9f"
     },
     {
       "secret": "ünïcödé secret",
       "plaintext": "JBSWY3DPEHPK3PXP",
-      "ciphertext": "5f972be69bdfb3b8b4ebf32b219ba11cbf9bee111f92acd7dfa297e1615805cb97ac4b4c4b0f6e90f59115ab80d30f2481ad10ee5ee3b94f"
+      "ciphertext": "e4fb3d12c5aefb05da18215c51ad64ffe2bdda4bf6fd84eef7df31c6d7ec31bb88900bf0c2bdf0d4611df0754b01d6cdb0f4c0c43952cd98"
     },
     {
       "secret": "ünïcödé secret",
       "plaintext": "[\"code-1\",\"code-2\"]",
-      "ciphertext": "ec847a33d2bdd79f296236a775a5074e4a8aea4c8dfaa6164a3b57c1f78ac71ed1aa42593f2ad985a94ae90901723bdedc2331c45fd232ce253be7"
+      "ciphertext": "111f30d36d71f5a2c27bef876b71063acfc4a037ba518f96531afab1474659d323296fb79c04aeaea228298a8d8a2c961d284936436d3e6e287b6f"
     },
     {
       "secret": "ünïcödé secret",
       "plaintext": "ünïcödé",
-      "ciphertext": "9f4de738a91c33437d100d18de9251557104d84e9f8a050120dad58fe4245ee48afb33df5db8a5c9255f71a4c7c7633125d145"
+      "ciphertext": "5c2e026901d16a9be3efa0e1de79c3e89545fdd2034741efa26ac1c2d920b7ef7e14aee95b60ddadb3637d4d48cb0e657cb107"
     }
   ],
   "symmetricVersioned": [
@@ -142,7 +142,7 @@
       "currentVersion": 1,
       "legacySecret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "versioned-plaintext",
-      "ciphertext": "$ba$1$07f3960955ecdc240fc761675ac4efe2b02f1572af8850c624692675bb41eca7cfd5895544ed7270e3ccd35acbc6f14c2ce4e061a1a7c45c3ebe60",
+      "ciphertext": "$ba$1$660b83fd47cd583277cc80c917b817f69f35c556adbbf3b0e79d6c62bf9d40eb0aa297ee15ad5b19da781182a767279088a2687914776aebff1b4b",
       "decrypted": "versioned-plaintext"
     },
     {
@@ -153,7 +153,7 @@
       "currentVersion": 2,
       "legacySecret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "versioned-plaintext",
-      "ciphertext": "$ba$2$91dd202408c1f7cf1c31de3b6a68bde6936117a0234d5b0697a18d3825603e73870f8e876294a27eeaa9cb83b5a934da3388d7ad6c660c527cd38a",
+      "ciphertext": "$ba$2$dc789891c506120757b4b7667943a56f77ea1d415ff53fa25dd168dba9789c85362fe34f79152d109530baee8c83244a57f2f36e7fc5fc3eb0085c",
       "decrypted": "versioned-plaintext"
     },
     {
@@ -164,7 +164,7 @@
       "currentVersion": 2,
       "legacySecret": "fixture-secret-0123456789abcdef0123456789",
       "plaintext": "legacy-plaintext",
-      "ciphertext": "ca3094c0183642055e682b48fb88b62124720e3ff129893a09fd8d0cf7f748f7171ac3b659aa757b9960b1d092293144e4dc88f2b8084529",
+      "ciphertext": "9142cf80938eb18d6a7fe8e8e13195199a94f385fa66a37cdc8c23a173ceef2df821d82a507ca0e871f94402850ced71dd3b1884a9265606",
       "decrypted": "legacy-plaintext"
     }
   ],
@@ -673,6 +673,80 @@
       {
         "in": "​a",
         "out": "​a"
+      }
+    ],
+    "textDecoder": [
+      {
+        "hex": "61",
+        "out": "a"
+      },
+      {
+        "hex": "c3bc",
+        "out": "ü"
+      },
+      {
+        "hex": "ff",
+        "out": "�"
+      },
+      {
+        "hex": "c3",
+        "out": "�"
+      },
+      {
+        "hex": "c328",
+        "out": "�("
+      },
+      {
+        "hex": "e0a4",
+        "out": "�"
+      },
+      {
+        "hex": "e0a441",
+        "out": "�A"
+      },
+      {
+        "hex": "e080",
+        "out": "��"
+      },
+      {
+        "hex": "eda080",
+        "out": "���"
+      },
+      {
+        "hex": "f09f98",
+        "out": "�"
+      },
+      {
+        "hex": "f09f9841",
+        "out": "�A"
+      },
+      {
+        "hex": "f4908080",
+        "out": "����"
+      },
+      {
+        "hex": "c0af",
+        "out": "��"
+      },
+      {
+        "hex": "80bf",
+        "out": "��"
+      },
+      {
+        "hex": "f8888080",
+        "out": "����"
+      },
+      {
+        "hex": "e282ac80",
+        "out": "€�"
+      },
+      {
+        "hex": "61ff62",
+        "out": "a�b"
+      },
+      {
+        "hex": "efbbbf61",
+        "out": "a"
       }
     ]
   }
