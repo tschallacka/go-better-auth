@@ -110,8 +110,9 @@ if (parent > 0) {
   setInterval(() => {
     try {
       process.kill(parent, 0);
-    } catch {
-      stop();
+    } catch (e) {
+      // ESRCH: the process is gone. EPERM means it exists under another user.
+      if (e?.code === "ESRCH") stop();
     }
   }, 1000).unref();
 }

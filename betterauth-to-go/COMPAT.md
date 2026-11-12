@@ -4,10 +4,10 @@ Draft inventory compiled by a Haiku agent from research reports; not yet verifie
 
 | Method | Path (relative to /api/auth) | Plugin | Success response | Notable error codes | Deviation/risk note | Status | Differential test |
 |---|---|---|---|---|---|---|---|
-| POST | /sign-up/email | core | 200 {token or null, user} | EMAIL_PASSWORD_SIGN_UP_DISABLED, INVALID_EMAIL, INVALID_PASSWORD, PASSWORD_TOO_SHORT, PASSWORD_TOO_LONG, USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL (422), FAILED_TO_CREATE_USER, FAILED_TO_CREATE_SESSION | Existing email returns 422 in default config, which reveals account existence | planned | TBD |
-| POST | /sign-in/email | core | 200 {redirect, token, url, user}; 2FA accounts get {twoFactorRedirect, twoFactorMethods} instead | EMAIL_PASSWORD_DISABLED, INVALID_EMAIL, INVALID_EMAIL_OR_PASSWORD (401), EMAIL_NOT_VERIFIED (403), FAILED_TO_CREATE_SESSION | EMAIL_NOT_VERIFIED is reached only after a correct password | planned | TBD |
-| POST | /sign-out | core | 200 {success:true} | none listed | - | planned | TBD |
-| GET or POST | /get-session | core | 200 {session, user} or null | 405 METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED (POST without deferSessionRefresh), 500 FAILED_TO_GET_SESSION | Session token is returned in the response body | planned | TBD |
+| POST | /sign-up/email | core | 200 {token or null, user} | EMAIL_PASSWORD_SIGN_UP_DISABLED, VALIDATION_ERROR (400, invalid email reaches zod first), PASSWORD_TOO_SHORT, PASSWORD_TOO_LONG, USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL (422), FAILED_TO_CREATE_SESSION | Existing email: Go answers the library's generic response by default (D9); 422 with Compat.RevealExistingEmail. Additional fields and email verification not supported yet (New refuses them) | done | compat_test/core_test.go, shared_test.go |
+| POST | /sign-in/email | core | 200 {redirect, token, url, user}; 2FA accounts get {twoFactorRedirect, twoFactorMethods} instead | EMAIL_PASSWORD_DISABLED, INVALID_EMAIL, INVALID_EMAIL_OR_PASSWORD (401), EMAIL_NOT_VERIFIED (403), FAILED_TO_CREATE_SESSION | 2FA redirect and EMAIL_NOT_VERIFIED come with those features | done (no 2FA, no verification) | compat_test/core_test.go, shared_test.go |
+| POST | /sign-out | core | 200 {success:true} | none listed | - | done | compat_test/core_test.go, shared_test.go |
+| GET or POST | /get-session | core | 200 {session, user} or null | 405 METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED (POST without deferSessionRefresh), 401 FAILED_TO_GET_SESSION | Session token is returned in the response body; refresh after updateAge; cookie cache and deferSessionRefresh not supported yet | done | compat_test/core_test.go, shared_test.go |
 | GET | /list-sessions | core | 200 array of sessions | UNAUTHORIZED (401) | - | planned | TBD |
 | POST | /revoke-session | core | 200 {status:true} | INTERNAL_SERVER_ERROR (500) | Always 200 whether or not the session is owned, so no leak | planned | TBD |
 | POST | /revoke-sessions | core | 200 {status:true} | none listed | Current session cookie is not expired here; it is cleared on the next get-session | planned | TBD |
@@ -29,7 +29,7 @@ Draft inventory compiled by a Haiku agent from research reports; not yet verifie
 | POST | /get-access-token | core | 200 {accessToken, accessTokenExpiresAt, scopes, idToken} | UNAUTHORIZED (401), PROVIDER_NOT_SUPPORTED, ACCOUNT_NOT_FOUND, FAILED_TO_GET_ACCESS_TOKEN (400) | OAuth access tokens stored in plain text (encryptOAuthTokens unset) | planned | TBD |
 | POST | /refresh-token | core | not stated in report | PROVIDER_NOT_SUPPORTED, TOKEN_REFRESH_NOT_SUPPORTED, ACCOUNT_NOT_FOUND, REFRESH_TOKEN_NOT_FOUND, FAILED_TO_REFRESH_ACCESS_TOKEN (400) | - | planned | TBD |
 | GET | /account-info | core | not analysed in report | not analysed in report | Not analysed in report | planned | TBD |
-| GET | /ok | core | 200 {ok:true} | none | - | planned | TBD |
+| GET | /ok | core | 200 {ok:true} | none | - | done | compat_test/core_test.go |
 | GET | /error | core | HTML error page | none | - | planned | TBD |
 | POST | /organization/create | organization | 200 organization with members | YOU_ARE_NOT_ALLOWED_TO_CREATE_A_NEW_ORGANIZATION (403), ORGANIZATION_ALREADY_EXISTS (400), FORBIDDEN (403, crew hook), UNAUTHORIZED (401) | - | planned | TBD |
 | POST | /organization/check-slug | organization | 200 {status:true} | ORGANIZATION_SLUG_ALREADY_TAKEN (400), UNAUTHORIZED (401) | - | planned | TBD |

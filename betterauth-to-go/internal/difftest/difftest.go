@@ -214,7 +214,9 @@ type Client struct {
 	// Fetch Metadata, sent when non-empty. NewClient sets what a same-origin
 	// fetch() sends; a test of cross-site navigation changes them.
 	FetchSite, FetchMode, FetchDest string
-	jar                             map[string]*http.Cookie
+	// Header is added to every request (e.g. X-Forwarded-For).
+	Header http.Header
+	jar    map[string]*http.Cookie
 }
 
 // NewClient returns a browser for base that claims origin and behaves like a
@@ -242,13 +244,23 @@ func (c *Client) SetCookie(name, value string) {
 // is not nil, and stores the cookies the response sets.
 func (c *Client) Do(t testing.TB, method, path string, body any) *Response {
 	t.Helper()
+	if body == nil {
+		return c.DoRaw(t, method, path, "", nil)
+	}
+	b, err := json.Marshal(body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return c.DoRaw(t, method, path, "application/json", b)
+}
+
+// DoRaw sends a body as given with contentType ("" sends no Content-Type;
+// a nil body sends none).
+func (c *Client) DoRaw(t testing.TB, method, path, contentType string, body []byte) *Response {
+	t.Helper()
 	var r io.Reader
 	if body != nil {
-		b, err := json.Marshal(body)
-		if err != nil {
-			t.Fatal(err)
-		}
-		r = bytes.NewReader(b)
+		r = bytes.NewReader(body)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -256,8 +268,13 @@ func (c *Client) Do(t testing.TB, method, path string, body any) *Response {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
+	for k, vs := range c.Header {
+		for _, v := range vs {
+			req.Header.Add(k, v)
+		}
 	}
 	if c.Origin != "" {
 		req.Header.Set("Origin", c.Origin)
@@ -340,7 +357,9 @@ func Shape(v any) string {
 }
 
 // Normalize returns v with every value under one of the keys replaced by its
-// Shape, at any depth; a null stays null so presence is still compared.
+// Shape, at any depth; a null stays null so presence is still compared. A
+// string's shape includes its length, so mask a field whose length varies by
+// nature (a URL carrying a token, a user agent) some other way.
 func Normalize(v any, keys ...string) any {
 	set := map[string]bool{}
 	for _, k := range keys {

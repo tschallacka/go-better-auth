@@ -18,3 +18,13 @@ No code exists yet. The Owner chose "tightened" on 2026-11-09 for the library we
 | D12 | password hash compared with plain === | constant-time compare | timing; invisible to clients |
 | D13 | adapter `contains`, `starts_with` and `ends_with` put the value into a LIKE pattern as written, so `%` and `_` in user input act as wildcards (`%_` matches every row) | wildcards escaped; the value matches itself only | found while porting the Kysely adapter; affects any search built on these operators |
 | D14 | a plugin's `schema` option (`mergeSchema`) writes renames into the plugin's shared default schema, so every later instance in the same process inherits them | each instance builds its own copy | observed while recording the schema fixtures; not wire-visible |
+| D15 | rate limiting keys on the first `X-Forwarded-For` address and is skipped entirely when there is none (one warning, then unlimited) | the connection's address is used when the header is missing | a missing proxy header must not switch limiting off; behind a proxy that sets the header both behave the same (`TestRateLimitMatchesLibrary`) |
+| D16 | rate limiting is on only when `NODE_ENV=production` | on unless `RateLimit.Disabled` | Go has no development mode to infer it from |
+
+### Notes on D9 as implemented
+
+The default answer to a sign-up for a registered email is the library's own generic response (the one it gives when `autoSignIn` is off or email verification is required): the password is hashed anyway, and 200 `{"token":null,"user":{…synthetic…}}` comes back with no cookie and no new row. While `AutoSignIn` stays on, a real sign-up does return a token, so the missing token still hints that the address is taken; the response is only fully non-revealing together with `AutoSignIn: false`. `Compat.RevealExistingEmail` restores the library's default 422.
+
+### Behaviour that differs only in how the handler is mounted
+
+Mounted under an `http.ServeMux`, paths with `//` or `..` are redirected by the mux before the handler sees them, where the library answers 404. Serve `Auth.Handler()` directly on its prefix to get the library's 404s.
