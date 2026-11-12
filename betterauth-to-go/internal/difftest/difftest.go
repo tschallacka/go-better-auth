@@ -18,7 +18,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -35,11 +37,28 @@ type Plugin struct {
 
 // Config is the library's configuration as plain data. Callbacks that send
 // mail are installed by server.mjs and land in the outbox.
+//
+// The library runs with NODE_ENV=production, as deployed. Rate limiting and
+// the origin check are stated here rather than left to environment defaults:
+// the origin check is on unless a test turns it off.
 type Config struct {
-	Secret  string         `json:"secret"`
-	BaseURL string         `json:"baseURL"`
-	Options map[string]any `json:"options,omitempty"`
-	Plugins []Plugin       `json:"plugins,omitempty"`
+	Secret             string
+	BaseURL            string
+	RateLimit          bool // the library's rate limiter
+	DisableOriginCheck bool // advanced.disableOriginCheck
+	Options            map[string]any
+	Plugins            []Plugin
+}
+
+func (c Config) payload() ([]byte, error) {
+	return json.Marshal(map[string]any{
+		"secret":      c.Secret,
+		"baseURL":     c.BaseURL,
+		"rateLimit":   c.RateLimit,
+		"originCheck": !c.DisableOriginCheck,
+		"options":     c.Options,
+		"plugins":     c.Plugins,
+	})
 }
 
 // Library is one running instance of the real library.
@@ -85,13 +104,22 @@ func (s *syncBuffer) String() string {
 func StartLibrary(t testing.TB, dbURL string, cfg Config) *Library {
 	t.Helper()
 	node := RequireLibrary(t)
-	conf, err := json.Marshal(cfg)
+	conf, err := cfg.payload()
 	if err != nil {
 		t.Fatal(err)
 	}
 	cmd := exec.Command(node, "server.mjs")
 	cmd.Dir = testvectors.GenDir()
-	cmd.Env = append(os.Environ(), "PG_URL="+dbURL, "CONFIG="+string(conf))
+	// Nothing is inherited: NODE_ENV=test or TEST=1 in the caller's shell would
+	// switch off the library's origin check, and BETTER_AUTH_* variables
+	// would change its configuration behind the test's back.
+	cmd.Env = []string{
+		"PATH=" + os.Getenv("PATH"),
+		"NODE_ENV=production",
+		"PG_URL=" + dbURL,
+		"CONFIG=" + string(conf),
+		"PARENT_PID=" + strconv.Itoa(os.Getpid()),
+	}
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		t.Fatal(err)
@@ -177,16 +205,23 @@ func (r *Response) JSON(t testing.TB) any {
 }
 
 // Client is one browser: it keeps cookies across requests and sends the
-// Origin header a browser would.
+// Origin and Fetch Metadata headers a browser's fetch() would. The jar keys
+// cookies by name only and ignores Path and Domain: every request goes to the
+// one origin under test.
 type Client struct {
 	Base   string // e.g. a Library URL or an httptest server URL
 	Origin string // sent on every request; the library checks it
-	jar    map[string]*http.Cookie
+	// Fetch Metadata, sent when non-empty. NewClient sets what a same-origin
+	// fetch() sends; a test of cross-site navigation changes them.
+	FetchSite, FetchMode, FetchDest string
+	jar                             map[string]*http.Cookie
 }
 
-// NewClient returns a browser for base that claims origin.
+// NewClient returns a browser for base that claims origin and behaves like a
+// same-origin fetch().
 func NewClient(base, origin string) *Client {
-	return &Client{Base: base, Origin: origin, jar: map[string]*http.Cookie{}}
+	return &Client{Base: base, Origin: origin, FetchSite: "same-origin", FetchMode: "cors", FetchDest: "empty",
+		jar: map[string]*http.Cookie{}}
 }
 
 // Cookies returns the cookies the browser holds, by name.
@@ -227,14 +262,23 @@ func (c *Client) Do(t testing.TB, method, path string, body any) *Response {
 	if c.Origin != "" {
 		req.Header.Set("Origin", c.Origin)
 	}
+	for h, v := range map[string]string{"Sec-Fetch-Site": c.FetchSite, "Sec-Fetch-Mode": c.FetchMode, "Sec-Fetch-Dest": c.FetchDest} {
+		if v != "" {
+			req.Header.Set(h, v)
+		}
+	}
 	names := make([]string, 0, len(c.jar))
 	for n := range c.jar {
 		names = append(names, n)
 	}
 	sort.Strings(names)
-	for _, n := range names {
-		// Written as the browser sends it: the stored value is already encoded.
-		req.Header.Add("Cookie", n+"="+c.jar[n].Value)
+	pairs := make([]string, len(names))
+	for i, n := range names {
+		// As a browser sends it: one header, the stored value as it was set.
+		pairs[i] = n + "=" + c.jar[n].Value
+	}
+	if len(pairs) > 0 {
+		req.Header.Set("Cookie", strings.Join(pairs, "; "))
 	}
 	client := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	res, err := client.Do(req)
@@ -248,8 +292,9 @@ func (c *Client) Do(t testing.TB, method, path string, body any) *Response {
 	}
 	out := &Response{Status: res.StatusCode, Header: res.Header, Body: b, Cookies: res.Cookies()}
 	for _, ck := range out.Cookies {
-		// net/http reports "Max-Age=0" as MaxAge < 0: the server deleted it.
-		if ck.MaxAge < 0 {
+		// net/http reports "Max-Age=0" as MaxAge < 0; either that or a past
+		// Expires means the server deleted it.
+		if ck.MaxAge < 0 || (!ck.Expires.IsZero() && ck.Expires.Before(time.Now())) {
 			delete(c.jar, ck.Name)
 			continue
 		}
@@ -266,11 +311,36 @@ func (c *Client) Post(t testing.TB, path string, body any) *Response {
 	return c.Do(t, http.MethodPost, path, body)
 }
 
-// Masked replaces a value that legitimately differs between runs.
-const Masked = "<masked>"
+// isoMillis is how JavaScript's Date.prototype.toJSON writes a time.
+var isoMillis = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$`)
 
-// Normalize returns v with every value under one of the keys replaced by
-// Masked, at any depth; a null stays null so presence is still compared.
+// Shape names what a masked value looked like, so masking hides the value
+// but not its form: a Go timestamp written with nanoseconds, an empty token
+// or a number where the library has a string still shows up as a difference.
+func Shape(v any) string {
+	switch x := v.(type) {
+	case string:
+		switch {
+		case x == "":
+			return "<empty-string>"
+		case isoMillis.MatchString(x):
+			return "<iso8601-ms>"
+		}
+		return fmt.Sprintf("<string:%d>", len(x))
+	case float64, json.Number:
+		return "<number>"
+	case bool:
+		return "<bool>"
+	case map[string]any:
+		return "<object>"
+	case []any:
+		return "<array>"
+	}
+	return fmt.Sprintf("<%T>", v)
+}
+
+// Normalize returns v with every value under one of the keys replaced by its
+// Shape, at any depth; a null stays null so presence is still compared.
 func Normalize(v any, keys ...string) any {
 	set := map[string]bool{}
 	for _, k := range keys {
@@ -283,7 +353,7 @@ func Normalize(v any, keys ...string) any {
 			out := make(map[string]any, len(x))
 			for k, val := range x {
 				if set[k] && val != nil {
-					out[k] = Masked
+					out[k] = Shape(val)
 				} else {
 					out[k] = walk(val)
 				}
@@ -301,10 +371,14 @@ func Normalize(v any, keys ...string) any {
 	return walk(v)
 }
 
-// Diff returns "" when a and b encode to the same JSON, or both encodings.
+// Diff returns "" when a and b encode to the same JSON, or both encodings. A
+// value that cannot be encoded is a difference, never a match.
 func Diff(a, b any) string {
-	ja, _ := json.MarshalIndent(a, "", "  ")
-	jb, _ := json.MarshalIndent(b, "", "  ")
+	ja, errA := json.MarshalIndent(a, "", "  ")
+	jb, errB := json.MarshalIndent(b, "", "  ")
+	if errA != nil || errB != nil {
+		return fmt.Sprintf("cannot compare: go %v, library %v", errA, errB)
+	}
 	if bytes.Equal(ja, jb) {
 		return ""
 	}

@@ -1,16 +1,22 @@
 // Runs the real better-auth 1.6.14 for the Go differential tests
 // (internal/difftest). It is started by the tests, never in production.
 //
-// Environment:
-//   PG_URL   database this instance uses; its tables are created with the
-//            library's own migrator on start
-//   CONFIG   JSON: { secret, baseURL, options, plugins: [{name, options}] }
-//            options is merged into the betterAuth() options as plain data
+// Environment (internal/difftest passes exactly these, nothing inherited):
+//   PG_URL      database this instance uses; its tables are created with the
+//               library's own migrator on start
+//   CONFIG      JSON: { secret, baseURL, rateLimit, originCheck, options,
+//               plugins: [{name, options}] }. rateLimit and originCheck are
+//               required booleans so no test inherits them by accident.
+//               options is merged into the betterAuth() options as plain data.
+//   NODE_ENV    "production", pinned by the caller: "test" (or TEST=1) would
+//               silently switch off the library's origin check.
+//   PARENT_PID  the Go test process; this server exits when it is gone.
 //
 // It listens on 127.0.0.1 on a free port and prints "ready <port>" once.
 // Besides /api/auth/* it serves GET /__outbox, which returns and clears every
 // message the library asked to send (verification links, reset links, OTPs,
-// invitations), so tests can read tokens without a mail server.
+// invitations), so tests can read tokens without a mail server. It is test
+// tooling: never run it anywhere but a developer machine or CI.
 import { createServer } from "node:http";
 import pg from "pg";
 import { betterAuth } from "better-auth";
@@ -24,20 +30,25 @@ if (!process.env.PG_URL || !config.secret || !config.baseURL) {
   console.error("server.mjs needs PG_URL and CONFIG with secret and baseURL");
   process.exit(2);
 }
+if (typeof config.rateLimit !== "boolean" || typeof config.originCheck !== "boolean") {
+  console.error("server.mjs needs CONFIG.rateLimit and CONFIG.originCheck as explicit booleans");
+  process.exit(2);
+}
+if (process.env.NODE_ENV !== "production" || process.env.TEST) {
+  console.error("server.mjs must run with NODE_ENV=production and no TEST variable");
+  process.exit(2);
+}
 
 const outbox = [];
 const record = (kind) => async (data) => {
-  // Keep only plain values; user objects are reduced to id and email.
-  const plain = {};
-  for (const [k, v] of Object.entries(data ?? {})) {
-    if (v && typeof v === "object" && "email" in v) plain[k] = { id: v.id, email: v.email };
-    else if (v && typeof v === "object" && "id" in v) plain[k] = { id: v.id };
-    else if (typeof v !== "function") plain[k] = v;
-  }
-  outbox.push({ kind, ...plain });
+  // Everything the library hands over, as plain JSON (dates as ISO strings,
+  // functions dropped), so tests can compare all of it.
+  outbox.push({ kind, ...JSON.parse(JSON.stringify(data ?? {})) });
 };
 
 const options = structuredClone(config.options ?? {});
+options.rateLimit = { ...options.rateLimit, enabled: config.rateLimit };
+options.advanced = { ...options.advanced, disableOriginCheck: !config.originCheck };
 if (options.emailAndPassword) options.emailAndPassword.sendResetPassword = record("reset-password");
 if (options.emailVerification) options.emailVerification.sendVerificationEmail = record("verification-email");
 if (options.user?.changeEmail?.enabled) options.user.changeEmail.sendChangeEmailVerification = record("change-email");
@@ -66,7 +77,8 @@ const auth = betterAuth({
   baseURL: config.baseURL,
   database: pool,
   plugins,
-  logger: { disabled: true },
+  // Warnings and errors go to stderr, which the Go test prints on failure.
+  logger: { level: "warn", log: (level, message, ...args) => console.error(`[${level}] ${message}`, ...args) },
 });
 await (await getMigrations({ ...options, secret: config.secret, baseURL: config.baseURL, database: pool, plugins })).runMigrations();
 
@@ -90,6 +102,17 @@ const stop = async () => {
 };
 process.on("SIGTERM", stop);
 process.on("SIGINT", stop);
-// The test that started this process owns it: when its stdin closes, exit.
+// The test that started this process owns it: when its stdin closes, or the
+// process itself is gone (a test binary killed hard), exit.
 process.stdin.on("end", stop);
+const parent = Number(process.env.PARENT_PID);
+if (parent > 0) {
+  setInterval(() => {
+    try {
+      process.kill(parent, 0);
+    } catch {
+      stop();
+    }
+  }, 1000).unref();
+}
 process.stdin.resume();

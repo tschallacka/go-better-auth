@@ -3,6 +3,8 @@ package compat
 import (
 	"context"
 	"crypto/rand"
+	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,11 +23,37 @@ const (
 	sessionCookie = "better-auth.session_token"
 )
 
+// These tests cross data at the database and cookie level using the Go
+// primitives (crypto, cookie, pgstore) directly; once the Go handler exists,
+// the endpoint tests drive both sides through HTTP as well.
+
 func coreConfig() difftest.Config {
 	return difftest.Config{
 		Secret:  secret,
 		BaseURL: baseURL,
 		Options: map[string]any{"emailAndPassword": map[string]any{"enabled": true}},
+	}
+}
+
+// The library under test must keep its CSRF and origin checks on; if the
+// harness ever let an environment variable switch them off, every Go CSRF
+// comparison would pass against a library that has none.
+func TestHarnessKeepsLibrarySecurityOn(t *testing.T) {
+	_, dbURL := testdb.FreshURL(t)
+	lib := difftest.StartLibrary(t, dbURL, coreConfig())
+
+	attacker := difftest.NewClient(lib.URL, "http://evil.example")
+	attacker.FetchSite, attacker.FetchMode, attacker.FetchDest = "cross-site", "navigate", "document"
+	res := attacker.Post(t, "/api/auth/sign-in/email", map[string]any{"email": "a@example.com", "password": "whatever-123"})
+	if res.Status != 403 || !strings.Contains(string(res.Body), "CROSS_SITE_NAVIGATION_LOGIN_BLOCKED") {
+		t.Errorf("cross-site login navigation: %d %s; want 403 CROSS_SITE_NAVIGATION_LOGIN_BLOCKED", res.Status, res.Body)
+	}
+
+	withCookie := difftest.NewClient(lib.URL, "http://evil.example")
+	withCookie.SetCookie(sessionCookie, "x")
+	res = withCookie.Post(t, "/api/auth/sign-out", map[string]any{})
+	if res.Status != 403 || !strings.Contains(string(res.Body), "INVALID_ORIGIN") {
+		t.Errorf("sign-out from a foreign origin with a cookie: %d %s; want 403 INVALID_ORIGIN", res.Status, res.Body)
 	}
 }
 
@@ -126,21 +154,37 @@ func TestLibraryReadsWhatGoWrites(t *testing.T) {
 		"expiresAt": now.Add(7 * 24 * time.Hour), "createdAt": now, "updatedAt": now}); err != nil {
 		t.Fatal(err)
 	}
-	signed, err := cookie.SignValue(token, []byte(secret))
+	// The cookie goes through Go's own Set-Cookie serialisation and is read
+	// back the way a browser stores it.
+	maxAge := 604800
+	header, err := cookie.SerializeSigned(sessionCookie, token, []byte(secret),
+		cookie.Options{Path: "/", HTTPOnly: true, SameSite: "lax", MaxAge: &maxAge}, now)
 	if err != nil {
 		t.Fatal(err)
 	}
+	set, err := http.ParseSetCookie(header)
+	if err != nil {
+		t.Fatalf("Go's Set-Cookie %q does not parse: %v", header, err)
+	}
 
 	browser := difftest.NewClient(lib.URL, baseURL)
-	browser.SetCookie(sessionCookie, signed)
+	browser.SetCookie(set.Name, set.Value)
 	res := browser.Get(t, "/api/auth/get-session")
 	if res.Status != 200 {
 		t.Fatalf("library get-session with a Go cookie: %d %s", res.Status, res.Body)
 	}
-	if got := res.JSON(t); got == nil || field(t, got, "user", "id") != userID {
+	got := res.JSON(t)
+	if got == nil || field(t, got, "user", "id") != userID {
 		t.Fatalf("library did not resolve the Go session: %s", res.Body)
 	}
-
+	// Times Go wrote must come back as written: a timezone or precision slip
+	// in the Go side would move the expiry.
+	if want := now.Add(7 * 24 * time.Hour).Format("2006-01-02T15:04:05.000Z"); field(t, got, "session", "expiresAt") != want {
+		t.Errorf("library reads expiresAt %v; Go wrote %s", field(t, got, "session", "expiresAt"), want)
+	}
+	if field(t, got, "session", "token") != token || field(t, got, "user", "email") != "bo@example.com" {
+		t.Errorf("library read the session as %s", res.Body)
+	}
 	fresh := difftest.NewClient(lib.URL, baseURL)
 	res = fresh.Post(t, "/api/auth/sign-in/email", map[string]any{"email": "bo@example.com", "password": "go wrote this password"})
 	if res.Status != 200 {

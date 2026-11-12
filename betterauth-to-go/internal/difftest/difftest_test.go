@@ -1,28 +1,51 @@
 package difftest
 
-import "testing"
+import (
+	"encoding/json"
+	"strings"
+	"testing"
+)
 
-func TestNormalize(t *testing.T) {
-	in := map[string]any{
-		"token": "abc",
-		"user":  map[string]any{"id": "u1", "name": "Ann", "image": nil},
-		"list":  []any{map[string]any{"id": "x", "role": "owner"}},
-		"none":  nil,
+func decode(t *testing.T, s string) any {
+	t.Helper()
+	var v any
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		t.Fatal(err)
 	}
-	got := Normalize(in, "id", "token", "image", "none")
-	want := map[string]any{
-		"token": Masked,
-		"user":  map[string]any{"id": Masked, "name": "Ann", "image": nil},
-		"list":  []any{map[string]any{"id": Masked, "role": "owner"}},
-		"none":  nil,
-	}
+	return v
+}
+
+func TestNormalizeMasksValuesNotShapes(t *testing.T) {
+	in := decode(t, `{"token":"abcdefgh","user":{"id":"u1","createdAt":"2026-11-12T10:00:00.123Z","image":null},"list":[{"id":"x"}],"none":null}`)
+	got := Normalize(in, "id", "token", "createdAt", "image", "none")
+	want := decode(t, `{"token":"<string:8>","user":{"id":"<string:2>","createdAt":"<iso8601-ms>","image":null},"list":[{"id":"<string:1>"}],"none":null}`)
 	if d := Diff(got, want); d != "" {
 		t.Error(d)
 	}
-	if Diff(Normalize(map[string]any{"id": "a"}, "id"), Normalize(map[string]any{"id": "b"}, "id")) != "" {
-		t.Error("masked values still differ")
+
+	same := func(a, b string) bool {
+		return Diff(Normalize(decode(t, a), "v"), Normalize(decode(t, b), "v")) == ""
 	}
-	if Diff(Normalize(map[string]any{"id": "a"}, "id"), Normalize(map[string]any{"id": nil}, "id")) == "" {
-		t.Error("a present value and a null compare equal after masking")
+	if !same(`{"v":"aaaa"}`, `{"v":"bbbb"}`) {
+		t.Error("two values of the same shape differ after masking")
+	}
+	for _, c := range [][2]string{
+		{`{"v":"2026-11-12T10:00:00.123Z"}`, `{"v":"2026-11-12T10:00:00.123456789Z"}`}, // Go's default time format
+		{`{"v":"2026-11-12T10:00:00.123Z"}`, `{"v":"2026-11-12T10:00:00Z"}`},
+		{`{"v":"abc"}`, `{"v":""}`},
+		{`{"v":"12"}`, `{"v":12}`},
+		{`{"v":"abc"}`, `{"v":null}`},
+		{`{"v":"abcd"}`, `{"v":"abc"}`},
+	} {
+		if same(c[0], c[1]) {
+			t.Errorf("%s and %s compare equal after masking", c[0], c[1])
+		}
+	}
+}
+
+func TestDiffRefusesUnencodable(t *testing.T) {
+	bad := map[string]any{"f": func() {}}
+	if d := Diff(bad, bad); !strings.Contains(d, "cannot compare") {
+		t.Errorf("Diff of unencodable values = %q; want a failure", d)
 	}
 }
