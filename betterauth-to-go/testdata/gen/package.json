@@ -1,0 +1,16 @@
+{
+  "name": "betterauth-to-go-fixture-gen",
+  "private": true,
+  "description": "Drives the real better-auth 1.6.14 to record fixtures for the Go differential tests. Generated secrets and fake users only.",
+  "type": "module",
+  "scripts": {
+    "vectors": "node crypto-vectors.mjs > ../fixtures/crypto-vectors.json"
+  },
+  "dependencies": {
+    "@better-auth/core": "1.6.14",
+    "@better-auth/passkey": "1.6.14",
+    "@better-auth/utils": "0.4.1",
+    "better-auth": "1.6.14",
+    "better-call": "1.3.5"
+  }
+}

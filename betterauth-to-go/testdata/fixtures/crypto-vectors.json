@@ -1,0 +1,753 @@
+{
+  "generator": "better-auth 1.6.14",
+  "passwordHashes": [
+    {
+      "password": "correct horse battery staple",
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa"
+    },
+    {
+      "password": "p",
+      "hash": "d0e0ea15b0171bd0b1b3f1c13e656997:101d6b03c2a3821a1cfe7667d1c5a2b524a5df7f4417b28d01a05dbe61161169e413637559114f0e038c8a5c92bab5c02496e9b2b32f5f0cc0b132fa2d87f654"
+    },
+    {
+      "password": "ünïcödé-pässwörd",
+      "hash": "d2bba5d8ff6fc74b95ab3cddfcffbab9:e2ad8ae2b65b0478d09405ef6b6799405f77c65b29e2bf658d8d74e01a16a6bd37a9a33daf97109144915ebc0389b639fae696613f484e388246da8ce5b48716"
+    },
+    {
+      "password": "ｐａｓｓ",
+      "hash": "58b1e9809b21ce27738e20cf5aa0f72d:8d1996cd9d982258c3b557596314ee3d0e255808163a3864c45e39374d3053ccec105af4c68d0589682774f59d162e45db8ef02656488a7a9ec4b890c34e42ca"
+    },
+    {
+      "password": "é",
+      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062"
+    },
+    {
+      "password": "é",
+      "hash": "b131efd4e3d204358972947bbb2b9f60:0535c69bdea04918b34a36a67671d912951e33b3be36d6f8d6cace611b64d9785eb7880efeb5425321aa3d07a833259211479b9ba71741a7c51a3043e83e93b4"
+    },
+    {
+      "password": "colon:inside:password",
+      "hash": "ba17717533aad32a23fcd0a3122bc2b3:e19e1109ad4520c9c41cf73148028e4ff8b91dc5838e6e52498b8bb7562fb0087829bfa1dabc4d24e0a0a3623cc713671180dba3b61b39106ac2490e7b43101a"
+    },
+    {
+      "password": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "hash": "1d25fda7afb09498339b2cd26d2f3876:544442e86e50d393e278c643c6216737469f4031c63bc41e3282df62159964384aefa2e99d9b898deeb53e877a36308e3050da1128bad4cd15f4e419e711346c"
+    }
+  ],
+  "passwordChecks": [
+    {
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
+      "password": "correct horse battery staple",
+      "ok": true
+    },
+    {
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
+      "password": "correct horse battery stapl",
+      "ok": false
+    },
+    {
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
+      "password": "Correct horse battery staple",
+      "ok": false
+    },
+    {
+      "hash": "e7df718a86087759abbae8b17bef454f:06700d844cda9af8b55bc65f20df95ae7e35154adddfb5e306ddf37deaa00290c7b452d0b222754991e290c5bfea5f6d40e4da1dacffe9db10251823a899befa",
+      "password": "",
+      "ok": false
+    },
+    {
+      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062",
+      "password": "é",
+      "ok": true
+    },
+    {
+      "hash": "9200f0d74fcceb02eab31d0ed9e548bb:84f9f307dc82115dc3b4ab97bcd10ea65dd917b042a0a36ace1f42f29c9be9e56a418ba9ae1e2e50eaaee8dc6b9d41b63ad20325f70a1414b23603e94672f062",
+      "password": "e",
+      "ok": false
+    },
+    {
+      "hash": "58b1e9809b21ce27738e20cf5aa0f72d:8d1996cd9d982258c3b557596314ee3d0e255808163a3864c45e39374d3053ccec105af4c68d0589682774f59d162e45db8ef02656488a7a9ec4b890c34e42ca",
+      "password": "pass",
+      "ok": true
+    }
+  ],
+  "symmetric": [
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "",
+      "ciphertext": "3a4923010ca566ebfc085e3642e52d38d88af2c2ad1922ce6f1218975d0014530f02d645538e7843"
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "JBSWY3DPEHPK3PXP",
+      "ciphertext": "482dbe4b8a27be98bee1c70767ccbe110f5daae9f74d44f269f3924a39223041e4f4c3fe01ae873b02d219dcb16575177347653615671896"
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "[\"code-1\",\"code-2\"]",
+      "ciphertext": "33aa34b9a573d203eeea5d08e550d55530174a5dd4fa48e44a00dd2d26f3f809d50613a332e0dfde416f9c7d719198e88897df2b9a9303005b5906"
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "ünïcödé",
+      "ciphertext": "fa3538cadcab7e49f43f0e297f97cf6a44af4d1c4a0cc499e15df6c1aa28c5ed77ca2749b936f89d2066f5e199445403416724"
+    },
+    {
+      "secret": "short",
+      "plaintext": "",
+      "ciphertext": "c322a252c27de421111b6eb8e96d421917181a373309b1525e771700b2cdb2e4761b317ca5fe256c"
+    },
+    {
+      "secret": "short",
+      "plaintext": "JBSWY3DPEHPK3PXP",
+      "ciphertext": "0d6af5d7183d58babc49fe941590d6c73c493c7496af3b17d087dc23d341d177fc8b9eb4bf1be6c49881ad66cddd25939558b52627af6a1c"
+    },
+    {
+      "secret": "short",
+      "plaintext": "[\"code-1\",\"code-2\"]",
+      "ciphertext": "5e8e772d89eb0a4158274cce8c11469bc9cf74fb3466ab2d8d50b7c07d29144d601c48b8c448e0259bb6001c4c721c68dd30a13c78b5dd3188e1c4"
+    },
+    {
+      "secret": "short",
+      "plaintext": "ünïcödé",
+      "ciphertext": "7b18dc89f43a221193960f9c93bcfe1aecb5a2bf23a4b2489bc048f4e1d9f67dd51c85ed3c3671e09b02d5e39beeaa3da0e2d4"
+    },
+    {
+      "secret": "ünïcödé secret",
+      "plaintext": "",
+      "ciphertext": "fe958b0eb0f7427b63508252a2451b41599c6aaccea10bdbe5424c434aa70072661072cbd603ee9f"
+    },
+    {
+      "secret": "ünïcödé secret",
+      "plaintext": "JBSWY3DPEHPK3PXP",
+      "ciphertext": "e4fb3d12c5aefb05da18215c51ad64ffe2bdda4bf6fd84eef7df31c6d7ec31bb88900bf0c2bdf0d4611df0754b01d6cdb0f4c0c43952cd98"
+    },
+    {
+      "secret": "ünïcödé secret",
+      "plaintext": "[\"code-1\",\"code-2\"]",
+      "ciphertext": "111f30d36d71f5a2c27bef876b71063acfc4a037ba518f96531afab1474659d323296fb79c04aeaea228298a8d8a2c961d284936436d3e6e287b6f"
+    },
+    {
+      "secret": "ünïcödé secret",
+      "plaintext": "ünïcödé",
+      "ciphertext": "5c2e026901d16a9be3efa0e1de79c3e89545fdd2034741efa26ac1c2d920b7ef7e14aee95b60ddadb3637d4d48cb0e657cb107"
+    }
+  ],
+  "symmetricVersioned": [
+    {
+      "keys": {
+        "1": "fixture-secret-v1-aaaaaaaaaaaaaaaaaaaaaaaa",
+        "2": "fixture-secret-v2-bbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "currentVersion": 1,
+      "legacySecret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "versioned-plaintext",
+      "ciphertext": "$ba$1$660b83fd47cd583277cc80c917b817f69f35c556adbbf3b0e79d6c62bf9d40eb0aa297ee15ad5b19da781182a767279088a2687914776aebff1b4b",
+      "decrypted": "versioned-plaintext"
+    },
+    {
+      "keys": {
+        "1": "fixture-secret-v1-aaaaaaaaaaaaaaaaaaaaaaaa",
+        "2": "fixture-secret-v2-bbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "currentVersion": 2,
+      "legacySecret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "versioned-plaintext",
+      "ciphertext": "$ba$2$dc789891c506120757b4b7667943a56f77ea1d415ff53fa25dd168dba9789c85362fe34f79152d109530baee8c83244a57f2f36e7fc5fc3eb0085c",
+      "decrypted": "versioned-plaintext"
+    },
+    {
+      "keys": {
+        "1": "fixture-secret-v1-aaaaaaaaaaaaaaaaaaaaaaaa",
+        "2": "fixture-secret-v2-bbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "currentVersion": 2,
+      "legacySecret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "legacy-plaintext",
+      "ciphertext": "9142cf80938eb18d6a7fe8e8e13195199a94f385fa66a37cdc8c23a173ceef2df821d82a507ca0e871f94402850ced71dd3b1884a9265606",
+      "decrypted": "legacy-plaintext"
+    }
+  ],
+  "signatures": [
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "value": "",
+      "signature": "9OAhuiCBjt8rqjkXc4zXC0sTzduCoRjW+GXRwaWvZGE="
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "value": "abc",
+      "signature": "bYV+ZzlbAF4pSemoEPcTyGQY2bglM7+NGLHiqBFEN6Q="
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "value": "Gm3aT1kq9xYz2bLw7nPs4dRf.with-dot",
+      "signature": "K+OtDvgkcRP9JEfQ+M+YdLX1WYWASxqFYK7TyJq5fQw="
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "value": "ünïcödé",
+      "signature": "abxL1gtvi/i9Aw/eqdXtrc8megjsTbmatg+YC2TZKno="
+    },
+    {
+      "secret": "short",
+      "value": "",
+      "signature": "0dyZltNjQ+U4m7WU+zjwOs4n1kQ2mYvRb9q6gsLIkcY="
+    },
+    {
+      "secret": "short",
+      "value": "abc",
+      "signature": "5RksvLL+1v6O1gSY9DuRMvxiWV5QZAridBEmC2Z50v0="
+    },
+    {
+      "secret": "short",
+      "value": "Gm3aT1kq9xYz2bLw7nPs4dRf.with-dot",
+      "signature": "tZyiU01g/kuM/6g3gC86ADDM0oaUsr7j/ejjOM05/JY="
+    },
+    {
+      "secret": "short",
+      "value": "ünïcödé",
+      "signature": "j6DzLQtoEicv47bcBEGweejqNJshZ5NJZOGpkMXfyac="
+    },
+    {
+      "secret": "ünïcödé secret",
+      "value": "",
+      "signature": "wWo5HsFCvcZTAoBTTh2wBBBVugf4fmR1TJjSu/O20MU="
+    },
+    {
+      "secret": "ünïcödé secret",
+      "value": "abc",
+      "signature": "Y50Hh5TI2OI1uALwQvxkIXFS16FNCDF2Xnr/BQtW+BU="
+    },
+    {
+      "secret": "ünïcödé secret",
+      "value": "Gm3aT1kq9xYz2bLw7nPs4dRf.with-dot",
+      "signature": "EmerpC2daX8OPLAMGEGhctTuQygn1KGIFpSIPVW06Ow="
+    },
+    {
+      "secret": "ünïcödé secret",
+      "value": "ünïcödé",
+      "signature": "9LmbgWPi5dWKjsMBVq+jxuEkNdx9/Ui6hklwznFHRIk="
+    }
+  ],
+  "signedCookieHeaders": [
+    {
+      "name": "better-auth.session_token",
+      "value": "Gm3aT1kq9xYz2bLw7nPs4dRf",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "options": {
+        "path": "/",
+        "httpOnly": true,
+        "sameSite": "lax",
+        "maxAge": 604800
+      },
+      "header": "better-auth.session_token=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D; Max-Age=604800; Path=/; HttpOnly; SameSite=Lax"
+    },
+    {
+      "name": "better-auth.session_token",
+      "value": "tok/with+chars=",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "options": {
+        "prefix": "secure",
+        "path": "/",
+        "httpOnly": true,
+        "secure": true,
+        "sameSite": "lax"
+      },
+      "header": "__Secure-better-auth.session_token=tok%2Fwith%2Bchars%3D.Fz78YQFkMgZr3SOItWt%2BUmIXxp0f24f5i4XryuLfwcU%3D; Path=/; HttpOnly; Secure; SameSite=Lax"
+    },
+    {
+      "name": "__Host-x",
+      "value": "v",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "options": {
+        "path": "/other",
+        "domain": "example.com"
+      },
+      "header": "__Host-x=v.GTzLG0yHH3ro7RKEVqKOSAAiQsMKYPaTROvSABK%2BLnQ%3D; Path=/; Secure"
+    },
+    {
+      "name": "better-auth.two_factor",
+      "value": "tf",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "options": {
+        "maxAge": 600,
+        "sameSite": "strict",
+        "partitioned": true
+      },
+      "header": "better-auth.two_factor=tf.5vSlbRxN%2BZuXnyGIsJgcWXF%2F2vCRbfO5m9nIyreLsNk%3D; Max-Age=600; SameSite=Strict; Partitioned"
+    }
+  ],
+  "signedCookieReads": [
+    {
+      "label": "valid encoded",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "valid unencoded",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "valid quoted",
+      "cookie": "st=\"Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D\"",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "valid among others",
+      "cookie": "a=1; st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D; b=2",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "first occurrence wins",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D; st=x.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "tampered value",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRg.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    },
+    {
+      "label": "tampered signature",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnA=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    },
+    {
+      "label": "truncated signature",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqp",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "signature without padding",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "no dot",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "leading dot only",
+      "cookie": "st=.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "empty value",
+      "cookie": "st=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "missing cookie",
+      "cookie": "other=1",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "wrong secret",
+      "cookie": "st=v.nm2RCpyE3X2lsILrayWeLEbOaNS9k2%2FvD9rnOV%2BaMfI%3D",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    },
+    {
+      "label": "bad percent escape",
+      "cookie": "st=%E0%A4%A.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    },
+    {
+      "label": "non-base64 signature",
+      "cookie": "st=v.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    }
+  ],
+  "constantTimeEqual": [
+    {
+      "a": "",
+      "b": "",
+      "equal": true
+    },
+    {
+      "a": "a",
+      "b": "a",
+      "equal": true
+    },
+    {
+      "a": "a",
+      "b": "b",
+      "equal": false
+    },
+    {
+      "a": "abc",
+      "b": "ab",
+      "equal": false
+    },
+    {
+      "a": "ab",
+      "b": "abc",
+      "equal": false
+    },
+    {
+      "a": "ünï",
+      "b": "ünï",
+      "equal": true
+    }
+  ],
+  "builtins": {
+    "encodeURIComponent": [
+      {
+        "in": "",
+        "out": ""
+      },
+      {
+        "in": "abc",
+        "out": "abc"
+      },
+      {
+        "in": "a b+c/d?e=f&g",
+        "out": "a%20b%2Bc%2Fd%3Fe%3Df%26g"
+      },
+      {
+        "in": "-_.!~*'()",
+        "out": "-_.!~*'()"
+      },
+      {
+        "in": "ünï€😀",
+        "out": "%C3%BCn%C3%AF%E2%82%AC%F0%9F%98%80"
+      },
+      {
+        "in": "%",
+        "out": "%25"
+      },
+      {
+        "in": "\u0000",
+        "out": "%00%7F"
+      }
+    ],
+    "decodeURIComponent": [
+      {
+        "in": "",
+        "value": ""
+      },
+      {
+        "in": "abc",
+        "value": "abc"
+      },
+      {
+        "in": "%20",
+        "value": " "
+      },
+      {
+        "in": "%2b%2B",
+        "value": "++"
+      },
+      {
+        "in": "%C3%BC",
+        "value": "ü"
+      },
+      {
+        "in": "%E2%82%AC",
+        "value": "€"
+      },
+      {
+        "in": "%F0%9F%98%80",
+        "value": "😀"
+      },
+      {
+        "in": "%",
+        "error": "URIError"
+      },
+      {
+        "in": "%2",
+        "error": "URIError"
+      },
+      {
+        "in": "%zz",
+        "error": "URIError"
+      },
+      {
+        "in": "%C3",
+        "error": "URIError"
+      },
+      {
+        "in": "%C3%28",
+        "error": "URIError"
+      },
+      {
+        "in": "%C0%AF",
+        "error": "URIError"
+      },
+      {
+        "in": "%ED%A0%80",
+        "error": "URIError"
+      },
+      {
+        "in": "%F4%90%80%80",
+        "error": "URIError"
+      },
+      {
+        "in": "%80",
+        "error": "URIError"
+      },
+      {
+        "in": "%E0%A4%A",
+        "error": "URIError"
+      },
+      {
+        "in": "a%20b%",
+        "error": "URIError"
+      },
+      {
+        "in": "100%25",
+        "value": "100%"
+      }
+    ],
+    "atob": [
+      {
+        "in": "",
+        "hex": ""
+      },
+      {
+        "in": "YQ==",
+        "hex": "61"
+      },
+      {
+        "in": "YQ=",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "YQ",
+        "hex": "61"
+      },
+      {
+        "in": "Y",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "YWJj",
+        "hex": "616263"
+      },
+      {
+        "in": "YW Jj",
+        "hex": "616263"
+      },
+      {
+        "in": "YW\nJj",
+        "hex": "616263"
+      },
+      {
+        "in": "YR==",
+        "hex": "61"
+      },
+      {
+        "in": "YQ===",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "Y===",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "!!!!",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "YWJj=",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "YéQ=",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+        "hex": "475e6e4c0e0af67c7a54d872025b62aa6973b6b7b3ec8b17126f99a8aaa93677"
+      }
+    ],
+    "parseInt": [
+      {
+        "in": "0",
+        "out": "0"
+      },
+      {
+        "in": "12",
+        "out": "12"
+      },
+      {
+        "in": " 7",
+        "out": "7"
+      },
+      {
+        "in": " 7",
+        "out": "7"
+      },
+      {
+        "in": "﻿8",
+        "out": "8"
+      },
+      {
+        "in": "+3",
+        "out": "3"
+      },
+      {
+        "in": "-0",
+        "out": "0"
+      },
+      {
+        "in": "-4",
+        "out": "-4"
+      },
+      {
+        "in": "",
+        "out": null
+      },
+      {
+        "in": "x",
+        "out": null
+      },
+      {
+        "in": "2abc",
+        "out": "2"
+      },
+      {
+        "in": "1.5",
+        "out": "1"
+      },
+      {
+        "in": "0x10",
+        "out": "0"
+      },
+      {
+        "in": "99999999999999999999",
+        "out": "100000000000000000000"
+      }
+    ],
+    "trim": [
+      {
+        "in": " a ",
+        "out": "a"
+      },
+      {
+        "in": "\t\n a ",
+        "out": "a"
+      },
+      {
+        "in": "﻿a　",
+        "out": "a"
+      },
+      {
+        "in": " a ",
+        "out": "a"
+      },
+      {
+        "in": "​a",
+        "out": "​a"
+      }
+    ],
+    "textDecoder": [
+      {
+        "hex": "61",
+        "out": "a"
+      },
+      {
+        "hex": "c3bc",
+        "out": "ü"
+      },
+      {
+        "hex": "ff",
+        "out": "�"
+      },
+      {
+        "hex": "c3",
+        "out": "�"
+      },
+      {
+        "hex": "c328",
+        "out": "�("
+      },
+      {
+        "hex": "e0a4",
+        "out": "�"
+      },
+      {
+        "hex": "e0a441",
+        "out": "�A"
+      },
+      {
+        "hex": "e080",
+        "out": "��"
+      },
+      {
+        "hex": "eda080",
+        "out": "���"
+      },
+      {
+        "hex": "f09f98",
+        "out": "�"
+      },
+      {
+        "hex": "f09f9841",
+        "out": "�A"
+      },
+      {
+        "hex": "f4908080",
+        "out": "����"
+      },
+      {
+        "hex": "c0af",
+        "out": "��"
+      },
+      {
+        "hex": "80bf",
+        "out": "��"
+      },
+      {
+        "hex": "f8888080",
+        "out": "����"
+      },
+      {
+        "hex": "e282ac80",
+        "out": "€�"
+      },
+      {
+        "hex": "61ff62",
+        "out": "a�b"
+      },
+      {
+        "hex": "efbbbf61",
+        "out": "a"
+      }
+    ]
+  }
+}
