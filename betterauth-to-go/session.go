@@ -102,10 +102,12 @@ func (a *Auth) ipv6Subnet() int {
 	return 64
 }
 
-// normalizeIP is the library's normalizeIP (core/src/utils/ip.ts): IPv4 as
-// written, IPv4-mapped IPv6 as IPv4, any other IPv6 masked to its /subnet
-// and written as eight lowercase four-digit groups. Clients that rotate
-// addresses inside one /64 are thereby limited together.
+// normalizeIP follows the library's normalizeIP (core/src/utils/ip.ts): IPv4
+// as written, IPv4-mapped IPv6 (::ffff:a.b.c.d) as IPv4, any other IPv6
+// masked to its /subnet and written as eight lowercase four-digit groups, so
+// clients that rotate addresses inside one /64 are limited together. Only
+// true ::ffff: mappings count as IPv4; the library's looser check also maps
+// some non-mapped forms, one of them wrongly (D19).
 func normalizeIP(s string, subnet int) (string, bool) {
 	addr, err := netip.ParseAddr(s)
 	if err != nil || addr.Zone() != "" {

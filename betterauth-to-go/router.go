@@ -225,7 +225,12 @@ func (a *Auth) rateLimitIP(r *http.Request) string {
 	}
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
-		return r.RemoteAddr
+		host = r.RemoteAddr
+	}
+	// Normalised like a forwarded address, so a client connecting directly
+	// over IPv6 is limited per /64 as well.
+	if ip, ok := normalizeIP(host, a.ipv6Subnet()); ok {
+		return ip
 	}
 	return host
 }

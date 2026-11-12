@@ -22,6 +22,7 @@ No code exists yet. The Owner chose "tightened" on 2026-11-09 for the library we
 | D16 | rate limiting is on only when `NODE_ENV=production` | on unless `RateLimit.Disabled` | Go has no development mode to infer it from |
 | D17 | the rate limiter counts a request after its response, so simultaneous requests all pass the check before any is counted (30 parallel sign-ins: 30 attempts) | check and count in one step under a lock when the request arrives | the 3-per-10-seconds sign-in limit must hold under load (`TestRateLimitUnderConcurrency`); with a shared `RateLimitStore` the store must do the same atomically |
 | D18 | callbackURL and Origin are matched by string: an upper-case host (`http://LOCALHOST:3000`) and `http://localhost:3000\@evil.com` are accepted, and a non-string callbackURL crashes with 500 | parsed and compared as origins: the upper-case host and the backslash form are refused (403), a non-string callbackURL is a 400 VALIDATION_ERROR | stricter, never looser; a browser sends canonical origins, so no real client is affected |
+| D19 | normalizeIP treats any address whose sixth group is `ffff` followed by dotted IPv4 as IPv4 (`1:2:3:4:5:ffff:1.2.3.4` becomes `1.2.3.4`) and misreads `::ffff:0:1.2.3.4` as `0.0.1.2` | only true IPv4-mapped addresses (`::ffff:a.b.c.d`) become IPv4; everything else is IPv6 masked to its /64 | the library's results here are parsing errors; the forms affected are not ones a proxy writes into X-Forwarded-For |
 
 ### X-Forwarded-For is trusted, as in the library
 
