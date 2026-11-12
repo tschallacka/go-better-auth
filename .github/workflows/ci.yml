@@ -36,7 +36,13 @@ jobs:
           nix develop --command pg-scratch up
           echo "GBA_TEST_DATABASE_URL=$(nix develop --command pg-scratch new)" >> "$GITHUB_ENV"
 
+      - name: Install the real better-auth for cross-checks
+        working-directory: betterauth-to-go/testdata/gen
+        run: nix develop --command npm ci --ignore-scripts --no-audit --no-fund
+
       - name: make check (gofmt, go vet, staticcheck, go test -race)
+        env:
+          GBA_REQUIRE_LIBRARY: "1" # cross-checks against better-auth fail instead of skipping
         run: nix develop --command make check
 
       - name: Stop scratch PostgreSQL

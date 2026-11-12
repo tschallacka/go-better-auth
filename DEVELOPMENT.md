@@ -37,6 +37,17 @@ make test-short   # quick tests without -race
 
 Each target runs in every directory that holds a `go.mod`. Before the first module exists, the targets report `no Go modules yet`.
 
+## Checks against the real better-auth
+
+`betterauth-to-go/testdata/gen` pins better-auth 1.6.14 and drives it to record fixtures and to read what the Go code writes. Install it once (scripts off; nothing runs on install):
+
+```sh
+cd betterauth-to-go/testdata/gen && npm ci --ignore-scripts
+npm run vectors        # re-record testdata/fixtures/crypto-vectors.json
+```
+
+Tests that need it skip when it is not installed. CI installs it and sets `GBA_REQUIRE_LIBRARY=1`, which turns those skips into failures.
+
 ## Scratch PostgreSQL
 
 `pg-scratch` runs one PostgreSQL server per checkout, with its data in `.dev/pg` (git-ignored). It listens on `127.0.0.1:54317` only, with trust authentication, so it is for local development, never for real data. Set `GBA_PG_PORT` to use another port, for example when two worktrees run servers at the same time.

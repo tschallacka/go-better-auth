@@ -1,0 +1,679 @@
+{
+  "generator": "better-auth 1.6.14",
+  "passwordHashes": [
+    {
+      "password": "correct horse battery staple",
+      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b"
+    },
+    {
+      "password": "p",
+      "hash": "104af913e0e697f6ce572ae5e8c71baf:b8836f64dba6e0a19ab7db889c66b800201453ea8090970f892b597970eb4c041a8b99a1b16a7296d1a8d01ae9f6cee1e5e1ecdd616e3db5db1f46b7c17945fd"
+    },
+    {
+      "password": "ünïcödé-pässwörd",
+      "hash": "08cb9bb4e04d11066f7b3823645308b4:67fa38e47ef7ab978cf8a5b5606c0e6d4c5867a2fe43e065971695f23d5d6be1ff98c50b777319c1d15eebd950112ad34225b33e5d07a59a8f36fec3a5556fd4"
+    },
+    {
+      "password": "ｐａｓｓ",
+      "hash": "540d6c6f270e9f519d85e3b19aa3b2df:305c5815643719714482304e67c9cb229979ab6adf8b16890620f2b3655b699f8a6bcba598e1d28bd6afb2ccfa0f73d516d430c70a575eaeb8388a01b81d2435"
+    },
+    {
+      "password": "é",
+      "hash": "a1a83f9c10432f8920324b3b47e899d0:275e6e28789c5af1ad43525863e074b7298aea4cda918bb11d94b0be78a3be88ec323ca8db4747ed2d428550f641dd88ba43008dee8a9c71b9fd259f366a6636"
+    },
+    {
+      "password": "é",
+      "hash": "53aeb24e875349248c51db9fa655d949:d18a6ec363bd434038629d09f5145cad773ffb8dbff036eb8436ca63cc2f433a82eba02a696f626dd613a79c76bbbfc45d085114ffe8e746c2e26de9302bb034"
+    },
+    {
+      "password": "colon:inside:password",
+      "hash": "a6a8c6043f4d433ec36535788e086e32:90a8136a988c91e14e7a47b82d1a99c2283e864e9606e989431568819e6888fb1342bd62433e6292e172d69031007d2c20563d0ea97dc68d3e6ee2bde66c7b5d"
+    },
+    {
+      "password": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "hash": "ed6a48e9584eef5ce3539f87926389c1:8bd0a743e17a0c55bbeafd9a9432072ec35f4414a6e6670eafd68503706c08c14b8494ae4ee3029c84b9793e93b5cc9ce9e16bf77f0e1e57118c146fce4848e6"
+    }
+  ],
+  "passwordChecks": [
+    {
+      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b",
+      "password": "correct horse battery staple",
+      "ok": true
+    },
+    {
+      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b",
+      "password": "correct horse battery stapl",
+      "ok": false
+    },
+    {
+      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b",
+      "password": "Correct horse battery staple",
+      "ok": false
+    },
+    {
+      "hash": "0fe8df4b1d8cba801db483c29ab6760b:70d400b7ac1262900105952f0b19ebd5f2f6bbd682102dff88e1f4af57e16d7fffec7291e4e374537f717f14fa532ad8710d1c9daeb2886065e60de406d61a0b",
+      "password": "",
+      "ok": false
+    },
+    {
+      "hash": "a1a83f9c10432f8920324b3b47e899d0:275e6e28789c5af1ad43525863e074b7298aea4cda918bb11d94b0be78a3be88ec323ca8db4747ed2d428550f641dd88ba43008dee8a9c71b9fd259f366a6636",
+      "password": "é",
+      "ok": true
+    },
+    {
+      "hash": "a1a83f9c10432f8920324b3b47e899d0:275e6e28789c5af1ad43525863e074b7298aea4cda918bb11d94b0be78a3be88ec323ca8db4747ed2d428550f641dd88ba43008dee8a9c71b9fd259f366a6636",
+      "password": "e",
+      "ok": false
+    },
+    {
+      "hash": "540d6c6f270e9f519d85e3b19aa3b2df:305c5815643719714482304e67c9cb229979ab6adf8b16890620f2b3655b699f8a6bcba598e1d28bd6afb2ccfa0f73d516d430c70a575eaeb8388a01b81d2435",
+      "password": "pass",
+      "ok": true
+    }
+  ],
+  "symmetric": [
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "",
+      "ciphertext": "2cd7d5534c77445f44005891462cc0099a88388cac6f3198834af2ed1ce62d3211e83f4d7d5d2f2b"
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "JBSWY3DPEHPK3PXP",
+      "ciphertext": "b1f451bee12d8b7b67a796757812fc23d9b9133c26aa937098c114da1a52129adf7dc7863752a1b194f272d75e165a925bdb4fa71e1cc5a1"
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "[\"code-1\",\"code-2\"]",
+      "ciphertext": "fd5a8509e284717880aba984ac5d4723586cb3ed576b1029aa761d934a4d5784d6fc919435df03d16bed0eafa64b7009781c67c0a6b6310ea74da5"
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "ünïcödé",
+      "ciphertext": "f2f6da66a93a5eae1c4d10e401bc8d8bdd57a68ddac6ab5bf1ba31cef65a1a0bc7ba049c44a84dbfc6dd966573febd4cee3215"
+    },
+    {
+      "secret": "short",
+      "plaintext": "",
+      "ciphertext": "4b39e08ef4c1bfd0b3a07a29ba5713753abb8138130f9b9e7a3e5abd670327cf1d5ab1c2bf39401f"
+    },
+    {
+      "secret": "short",
+      "plaintext": "JBSWY3DPEHPK3PXP",
+      "ciphertext": "b0442d5b2e7b514a1f11c87752cd478a7629c8e6a5e1d359e7a4aea38d65e45a963b6ab3bd075b9b1fea72dc74ac0722529be8cbc07949d0"
+    },
+    {
+      "secret": "short",
+      "plaintext": "[\"code-1\",\"code-2\"]",
+      "ciphertext": "2bc6a71342c90d52f497922b188ec798c2fc8f1eefa2785791605fb910dc01231e397c111256867a561f7a1ccbae2c4977ab369c1c1c4e56f1e8a2"
+    },
+    {
+      "secret": "short",
+      "plaintext": "ünïcödé",
+      "ciphertext": "d8716afeaea4b62f53bf6de19f1116f80fef1077aaa310381349a8591f98412bba3ff646aa56f126477688573eda49a2e8630e"
+    },
+    {
+      "secret": "ünïcödé secret",
+      "plaintext": "",
+      "ciphertext": "9c874734f731466ec83e9754678455957b88abfe9f8d233db6d7d7a1b4efab5aa03825c33bd8b3c4"
+    },
+    {
+      "secret": "ünïcödé secret",
+      "plaintext": "JBSWY3DPEHPK3PXP",
+      "ciphertext": "5f972be69bdfb3b8b4ebf32b219ba11cbf9bee111f92acd7dfa297e1615805cb97ac4b4c4b0f6e90f59115ab80d30f2481ad10ee5ee3b94f"
+    },
+    {
+      "secret": "ünïcödé secret",
+      "plaintext": "[\"code-1\",\"code-2\"]",
+      "ciphertext": "ec847a33d2bdd79f296236a775a5074e4a8aea4c8dfaa6164a3b57c1f78ac71ed1aa42593f2ad985a94ae90901723bdedc2331c45fd232ce253be7"
+    },
+    {
+      "secret": "ünïcödé secret",
+      "plaintext": "ünïcödé",
+      "ciphertext": "9f4de738a91c33437d100d18de9251557104d84e9f8a050120dad58fe4245ee48afb33df5db8a5c9255f71a4c7c7633125d145"
+    }
+  ],
+  "symmetricVersioned": [
+    {
+      "keys": {
+        "1": "fixture-secret-v1-aaaaaaaaaaaaaaaaaaaaaaaa",
+        "2": "fixture-secret-v2-bbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "currentVersion": 1,
+      "legacySecret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "versioned-plaintext",
+      "ciphertext": "$ba$1$07f3960955ecdc240fc761675ac4efe2b02f1572af8850c624692675bb41eca7cfd5895544ed7270e3ccd35acbc6f14c2ce4e061a1a7c45c3ebe60",
+      "decrypted": "versioned-plaintext"
+    },
+    {
+      "keys": {
+        "1": "fixture-secret-v1-aaaaaaaaaaaaaaaaaaaaaaaa",
+        "2": "fixture-secret-v2-bbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "currentVersion": 2,
+      "legacySecret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "versioned-plaintext",
+      "ciphertext": "$ba$2$91dd202408c1f7cf1c31de3b6a68bde6936117a0234d5b0697a18d3825603e73870f8e876294a27eeaa9cb83b5a934da3388d7ad6c660c527cd38a",
+      "decrypted": "versioned-plaintext"
+    },
+    {
+      "keys": {
+        "1": "fixture-secret-v1-aaaaaaaaaaaaaaaaaaaaaaaa",
+        "2": "fixture-secret-v2-bbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "currentVersion": 2,
+      "legacySecret": "fixture-secret-0123456789abcdef0123456789",
+      "plaintext": "legacy-plaintext",
+      "ciphertext": "ca3094c0183642055e682b48fb88b62124720e3ff129893a09fd8d0cf7f748f7171ac3b659aa757b9960b1d092293144e4dc88f2b8084529",
+      "decrypted": "legacy-plaintext"
+    }
+  ],
+  "signatures": [
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "value": "",
+      "signature": "9OAhuiCBjt8rqjkXc4zXC0sTzduCoRjW+GXRwaWvZGE="
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "value": "abc",
+      "signature": "bYV+ZzlbAF4pSemoEPcTyGQY2bglM7+NGLHiqBFEN6Q="
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "value": "Gm3aT1kq9xYz2bLw7nPs4dRf.with-dot",
+      "signature": "K+OtDvgkcRP9JEfQ+M+YdLX1WYWASxqFYK7TyJq5fQw="
+    },
+    {
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "value": "ünïcödé",
+      "signature": "abxL1gtvi/i9Aw/eqdXtrc8megjsTbmatg+YC2TZKno="
+    },
+    {
+      "secret": "short",
+      "value": "",
+      "signature": "0dyZltNjQ+U4m7WU+zjwOs4n1kQ2mYvRb9q6gsLIkcY="
+    },
+    {
+      "secret": "short",
+      "value": "abc",
+      "signature": "5RksvLL+1v6O1gSY9DuRMvxiWV5QZAridBEmC2Z50v0="
+    },
+    {
+      "secret": "short",
+      "value": "Gm3aT1kq9xYz2bLw7nPs4dRf.with-dot",
+      "signature": "tZyiU01g/kuM/6g3gC86ADDM0oaUsr7j/ejjOM05/JY="
+    },
+    {
+      "secret": "short",
+      "value": "ünïcödé",
+      "signature": "j6DzLQtoEicv47bcBEGweejqNJshZ5NJZOGpkMXfyac="
+    },
+    {
+      "secret": "ünïcödé secret",
+      "value": "",
+      "signature": "wWo5HsFCvcZTAoBTTh2wBBBVugf4fmR1TJjSu/O20MU="
+    },
+    {
+      "secret": "ünïcödé secret",
+      "value": "abc",
+      "signature": "Y50Hh5TI2OI1uALwQvxkIXFS16FNCDF2Xnr/BQtW+BU="
+    },
+    {
+      "secret": "ünïcödé secret",
+      "value": "Gm3aT1kq9xYz2bLw7nPs4dRf.with-dot",
+      "signature": "EmerpC2daX8OPLAMGEGhctTuQygn1KGIFpSIPVW06Ow="
+    },
+    {
+      "secret": "ünïcödé secret",
+      "value": "ünïcödé",
+      "signature": "9LmbgWPi5dWKjsMBVq+jxuEkNdx9/Ui6hklwznFHRIk="
+    }
+  ],
+  "signedCookieHeaders": [
+    {
+      "name": "better-auth.session_token",
+      "value": "Gm3aT1kq9xYz2bLw7nPs4dRf",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "options": {
+        "path": "/",
+        "httpOnly": true,
+        "sameSite": "lax",
+        "maxAge": 604800
+      },
+      "header": "better-auth.session_token=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D; Max-Age=604800; Path=/; HttpOnly; SameSite=Lax"
+    },
+    {
+      "name": "better-auth.session_token",
+      "value": "tok/with+chars=",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "options": {
+        "prefix": "secure",
+        "path": "/",
+        "httpOnly": true,
+        "secure": true,
+        "sameSite": "lax"
+      },
+      "header": "__Secure-better-auth.session_token=tok%2Fwith%2Bchars%3D.Fz78YQFkMgZr3SOItWt%2BUmIXxp0f24f5i4XryuLfwcU%3D; Path=/; HttpOnly; Secure; SameSite=Lax"
+    },
+    {
+      "name": "__Host-x",
+      "value": "v",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "options": {
+        "path": "/other",
+        "domain": "example.com"
+      },
+      "header": "__Host-x=v.GTzLG0yHH3ro7RKEVqKOSAAiQsMKYPaTROvSABK%2BLnQ%3D; Path=/; Secure"
+    },
+    {
+      "name": "better-auth.two_factor",
+      "value": "tf",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "options": {
+        "maxAge": 600,
+        "sameSite": "strict",
+        "partitioned": true
+      },
+      "header": "better-auth.two_factor=tf.5vSlbRxN%2BZuXnyGIsJgcWXF%2F2vCRbfO5m9nIyreLsNk%3D; Max-Age=600; SameSite=Strict; Partitioned"
+    }
+  ],
+  "signedCookieReads": [
+    {
+      "label": "valid encoded",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "valid unencoded",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "valid quoted",
+      "cookie": "st=\"Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D\"",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "valid among others",
+      "cookie": "a=1; st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D; b=2",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "first occurrence wins",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm%2BZqKqpNnc%3D; st=x.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": "Gm3aT1kq9xYz2bLw7nPs4dRf"
+    },
+    {
+      "label": "tampered value",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRg.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    },
+    {
+      "label": "tampered signature",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnA=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    },
+    {
+      "label": "truncated signature",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqp",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "signature without padding",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "no dot",
+      "cookie": "st=Gm3aT1kq9xYz2bLw7nPs4dRf",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "leading dot only",
+      "cookie": "st=.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "empty value",
+      "cookie": "st=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "missing cookie",
+      "cookie": "other=1",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": null
+    },
+    {
+      "label": "wrong secret",
+      "cookie": "st=v.nm2RCpyE3X2lsILrayWeLEbOaNS9k2%2FvD9rnOV%2BaMfI%3D",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    },
+    {
+      "label": "bad percent escape",
+      "cookie": "st=%E0%A4%A.R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    },
+    {
+      "label": "non-base64 signature",
+      "cookie": "st=v.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!=",
+      "name": "st",
+      "secret": "fixture-secret-0123456789abcdef0123456789",
+      "result": false
+    }
+  ],
+  "constantTimeEqual": [
+    {
+      "a": "",
+      "b": "",
+      "equal": true
+    },
+    {
+      "a": "a",
+      "b": "a",
+      "equal": true
+    },
+    {
+      "a": "a",
+      "b": "b",
+      "equal": false
+    },
+    {
+      "a": "abc",
+      "b": "ab",
+      "equal": false
+    },
+    {
+      "a": "ab",
+      "b": "abc",
+      "equal": false
+    },
+    {
+      "a": "ünï",
+      "b": "ünï",
+      "equal": true
+    }
+  ],
+  "builtins": {
+    "encodeURIComponent": [
+      {
+        "in": "",
+        "out": ""
+      },
+      {
+        "in": "abc",
+        "out": "abc"
+      },
+      {
+        "in": "a b+c/d?e=f&g",
+        "out": "a%20b%2Bc%2Fd%3Fe%3Df%26g"
+      },
+      {
+        "in": "-_.!~*'()",
+        "out": "-_.!~*'()"
+      },
+      {
+        "in": "ünï€😀",
+        "out": "%C3%BCn%C3%AF%E2%82%AC%F0%9F%98%80"
+      },
+      {
+        "in": "%",
+        "out": "%25"
+      },
+      {
+        "in": "\u0000",
+        "out": "%00%7F"
+      }
+    ],
+    "decodeURIComponent": [
+      {
+        "in": "",
+        "value": ""
+      },
+      {
+        "in": "abc",
+        "value": "abc"
+      },
+      {
+        "in": "%20",
+        "value": " "
+      },
+      {
+        "in": "%2b%2B",
+        "value": "++"
+      },
+      {
+        "in": "%C3%BC",
+        "value": "ü"
+      },
+      {
+        "in": "%E2%82%AC",
+        "value": "€"
+      },
+      {
+        "in": "%F0%9F%98%80",
+        "value": "😀"
+      },
+      {
+        "in": "%",
+        "error": "URIError"
+      },
+      {
+        "in": "%2",
+        "error": "URIError"
+      },
+      {
+        "in": "%zz",
+        "error": "URIError"
+      },
+      {
+        "in": "%C3",
+        "error": "URIError"
+      },
+      {
+        "in": "%C3%28",
+        "error": "URIError"
+      },
+      {
+        "in": "%C0%AF",
+        "error": "URIError"
+      },
+      {
+        "in": "%ED%A0%80",
+        "error": "URIError"
+      },
+      {
+        "in": "%F4%90%80%80",
+        "error": "URIError"
+      },
+      {
+        "in": "%80",
+        "error": "URIError"
+      },
+      {
+        "in": "%E0%A4%A",
+        "error": "URIError"
+      },
+      {
+        "in": "a%20b%",
+        "error": "URIError"
+      },
+      {
+        "in": "100%25",
+        "value": "100%"
+      }
+    ],
+    "atob": [
+      {
+        "in": "",
+        "hex": ""
+      },
+      {
+        "in": "YQ==",
+        "hex": "61"
+      },
+      {
+        "in": "YQ=",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "YQ",
+        "hex": "61"
+      },
+      {
+        "in": "Y",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "YWJj",
+        "hex": "616263"
+      },
+      {
+        "in": "YW Jj",
+        "hex": "616263"
+      },
+      {
+        "in": "YW\nJj",
+        "hex": "616263"
+      },
+      {
+        "in": "YR==",
+        "hex": "61"
+      },
+      {
+        "in": "YQ===",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "Y===",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "!!!!",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "YWJj=",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "YéQ=",
+        "error": "InvalidCharacterError"
+      },
+      {
+        "in": "R15uTA4K9nx6VNhyAltiqmlztrez7IsXEm+ZqKqpNnc=",
+        "hex": "475e6e4c0e0af67c7a54d872025b62aa6973b6b7b3ec8b17126f99a8aaa93677"
+      }
+    ],
+    "parseInt": [
+      {
+        "in": "0",
+        "out": "0"
+      },
+      {
+        "in": "12",
+        "out": "12"
+      },
+      {
+        "in": " 7",
+        "out": "7"
+      },
+      {
+        "in": " 7",
+        "out": "7"
+      },
+      {
+        "in": "﻿8",
+        "out": "8"
+      },
+      {
+        "in": "+3",
+        "out": "3"
+      },
+      {
+        "in": "-0",
+        "out": "0"
+      },
+      {
+        "in": "-4",
+        "out": "-4"
+      },
+      {
+        "in": "",
+        "out": null
+      },
+      {
+        "in": "x",
+        "out": null
+      },
+      {
+        "in": "2abc",
+        "out": "2"
+      },
+      {
+        "in": "1.5",
+        "out": "1"
+      },
+      {
+        "in": "0x10",
+        "out": "0"
+      },
+      {
+        "in": "99999999999999999999",
+        "out": "100000000000000000000"
+      }
+    ],
+    "trim": [
+      {
+        "in": " a ",
+        "out": "a"
+      },
+      {
+        "in": "\t\n a ",
+        "out": "a"
+      },
+      {
+        "in": "﻿a　",
+        "out": "a"
+      },
+      {
+        "in": " a ",
+        "out": "a"
+      },
+      {
+        "in": "​a",
+        "out": "​a"
+      }
+    ]
+  }
+}

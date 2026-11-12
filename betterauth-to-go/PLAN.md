@@ -176,7 +176,8 @@ Each step is its own PR. Work is split into atomic units per goal and handed out
 - `github.com/jackc/pgx/v5`: the application already uses `*pgxpool.Pool`; `database/sql` would force a second pool and lose pgx types.
 - `github.com/go-webauthn/webauthn`: required by the brief; implementing attestation and assertion verification by hand would be a security risk.
 - `golang.org/x/crypto`: `scrypt`, `chacha20poly1305` (XChaCha20-Poly1305). Standard library has neither.
-- Everything else uses the standard library (`crypto/hmac`, `crypto/sha256`, `crypto/rand`, `encoding/*`, `net/http`, `golang.org/x/text/unicode/norm` for NFKC if not in `x/crypto`; this one needs a decision).
+- Everything else uses the standard library (`crypto/hmac`, `crypto/sha256`, `crypto/rand`, `encoding/*`, `net/http`).
+- `golang.org/x/text/unicode/norm`: NFKC before scrypt. `x/crypto` has no normalisation, and without it a better-auth hash of a non-ASCII password (fullwidth or decomposed characters) does not verify; the crypto vector tests fail when it is removed. Decided in the foundation PR.
 
 No OAuth2 or OIDC library: the TypeScript flow is small and must match byte for byte; a library's different defaults would be a divergence risk.
 
