@@ -1,0 +1,44 @@
+# Runs the same checks as `make check` locally, inside the same Nix dev shell,
+# so CI and a contributor's machine use identical tool versions (flake.lock).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: cachix/install-nix-action@v31
+
+      - name: Build the dev shell
+        run: nix develop --command true
+
+      - name: Evaluate the flake
+        run: nix flake check
+
+      - name: Start scratch PostgreSQL
+        run: |
+          nix develop --command pg-scratch up
+          echo "GBA_TEST_DATABASE_URL=$(nix develop --command pg-scratch new)" >> "$GITHUB_ENV"
+
+      - name: make check (gofmt, go vet, staticcheck, go test -race)
+        run: nix develop --command make check
+
+      - name: Stop scratch PostgreSQL
+        if: always()
+        run: nix develop --command pg-scratch down || true

@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# pg-scratch: a throwaway PostgreSQL for local development and tests.
+#
+# One server per checkout, data under <repo>/.dev/pg (git-ignored), listening
+# on 127.0.0.1 only with trust auth. TCP only: Unix sockets are switched off
+# because macOS caps a socket path near 104 bytes and worktree paths are long.
+#
+#   pg-scratch up              initialise on first use, then start
+#   pg-scratch down            stop
+#   pg-scratch status          is it running, and where
+#   pg-scratch url [db]        connection URL (default db: postgres)
+#   pg-scratch new             create a uniquely named scratch db, print its URL
+#   pg-scratch createdb NAME   create a database
+#   pg-scratch dropdb NAME     drop a database
+#   pg-scratch psql [args]     psql against the server
+#   pg-scratch reset           stop and delete all data
+#
+# Environment: GBA_PG_PORT (default 54317).
+set -euo pipefail
+
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+root="$repo/.dev/pg"
+data="$root/data"
+log="$root/server.log"
+port="${GBA_PG_PORT:-54317}"
+user="postgres"
+
+need() {
+	command -v "$1" >/dev/null 2>&1 || {
+		echo "pg-scratch: $1 not found; run inside 'nix develop'" >&2
+		exit 1
+	}
+}
+
+url() { printf 'postgres://%s@127.0.0.1:%s/%s?sslmode=disable\n' "$user" "$port" "${1:-postgres}"; }
+
+running() { [ -f "$data/postmaster.pid" ] && pg_ctl -D "$data" status >/dev/null 2>&1; }
+
+sql() { psql -X -q -v ON_ERROR_STOP=1 -h 127.0.0.1 -p "$port" -U "$user" -d postgres "$@"; }
+
+valid_name() {
+	[[ "$1" =~ ^[a-z_][a-z0-9_]{0,62}$ ]] || {
+		echo "pg-scratch: invalid database name '$1' (use [a-z0-9_], start with a letter or _)" >&2
+		exit 2
+	}
+}
+
+cmd="${1:-status}"
+shift || true
+
+case "$cmd" in
+up)
+	need initdb
+	need pg_ctl
+	if [ ! -f "$data/PG_VERSION" ]; then
+		mkdir -p "$root"
+		initdb -D "$data" -U "$user" --auth=trust -E UTF8 --locale=C >"$root/initdb.log"
+	fi
+	if running; then
+		echo "pg-scratch: already running on 127.0.0.1:$port"
+	else
+		pg_ctl -D "$data" -l "$log" -w start \
+			-o "-p $port -c listen_addresses=127.0.0.1 -c unix_socket_directories=''" >/dev/null
+		echo "pg-scratch: started on 127.0.0.1:$port"
+	fi
+	url
+	;;
+down)
+	need pg_ctl
+	if running; then
+		pg_ctl -D "$data" -m fast -w stop >/dev/null
+		echo "pg-scratch: stopped"
+	else
+		echo "pg-scratch: not running"
+	fi
+	;;
+status)
+	need pg_ctl
+	if running; then
+		echo "pg-scratch: running on 127.0.0.1:$port, data $data"
+	else
+		echo "pg-scratch: not running"
+		exit 3
+	fi
+	;;
+url)
+	url "${1:-postgres}"
+	;;
+new)
+	need psql
+	name="scratch_$(date +%s)_$RANDOM"
+	sql -c "CREATE DATABASE $name"
+	url "$name"
+	;;
+createdb)
+	need psql
+	valid_name "${1:?usage: pg-scratch createdb NAME}"
+	sql -c "CREATE DATABASE $1"
+	url "$1"
+	;;
+dropdb)
+	need psql
+	valid_name "${1:?usage: pg-scratch dropdb NAME}"
+	sql -c "DROP DATABASE IF EXISTS $1 WITH (FORCE)"
+	;;
+psql)
+	need psql
+	exec psql -h 127.0.0.1 -p "$port" -U "$user" "$@"
+	;;
+reset)
+	if running; then pg_ctl -D "$data" -m fast -w stop >/dev/null; fi
+	rm -rf "$root"
+	echo "pg-scratch: data removed"
+	;;
+*)
+	sed -n '2,17p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+	exit 2
+	;;
+esac

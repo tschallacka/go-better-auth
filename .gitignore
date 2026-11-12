@@ -1,0 +1,18 @@
+# Local scratch PostgreSQL (scripts/pg-scratch) and other dev state.
+/.dev/
+
+# Agent worktrees and local code index.
+/.claude/worktrees/
+/.codegraph/
+
+# Go build and test output.
+*.test
+*.out
+coverage.*
+
+# Fixture generator dependencies (testdata/gen).
+node_modules/
+
+# Never commit a secret.
+.env
+.env.*
