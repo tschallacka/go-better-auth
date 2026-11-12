@@ -63,7 +63,7 @@ type rateLimiter struct {
 	window time.Duration
 	max    int
 	now    func() time.Time
-	mu     sync.Mutex // check-and-record is not atomic in the store interface
+	mu     sync.Mutex // makes consume's read-check-write atomic in this process; a shared store must do its own
 }
 
 func newRateLimiter(o RateLimitOptions, now func() time.Time) *rateLimiter {
@@ -88,33 +88,26 @@ func rateKey(ip, path string) string {
 	return ip + "|" + strings.TrimRight(path, "/")
 }
 
-// check reports whether the request must be refused, and the seconds to wait.
-func (l *rateLimiter) check(ip, path string) (bool, int) {
-	window, max := l.rule(path)
-	e, ok := l.store.Get(rateKey(ip, path))
-	if !ok {
-		return false, 0
-	}
-	since := l.now().Sub(e.LastRequest)
-	if since < window && e.Count >= max {
-		wait := e.LastRequest.Add(window).Sub(l.now())
-		secs := int((wait + time.Second - 1) / time.Second)
-		return true, secs
-	}
-	return false, 0
-}
-
-// record counts a response, as the library's onResponse does.
-func (l *rateLimiter) record(ip, path string) {
+// consume counts a request and reports whether it must be refused, with the
+// seconds to wait. Check and count happen in one step under the lock, when
+// the request arrives: the library counts after the response, which lets
+// concurrent requests all pass the check before any is counted.
+func (l *rateLimiter) consume(ip, path string) (bool, int) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	window, _ := l.rule(path)
+	window, max := l.rule(path)
 	key := rateKey(ip, path)
 	now := l.now()
 	e, ok := l.store.Get(key)
+	if ok && now.Sub(e.LastRequest) < window && e.Count >= max {
+		wait := e.LastRequest.Add(window).Sub(now)
+		secs := int((wait + time.Second - 1) / time.Second)
+		return true, secs
+	}
 	if !ok || now.Sub(e.LastRequest) > window {
 		l.store.Set(key, RateLimitEntry{Count: 1, LastRequest: now})
-		return
+	} else {
+		l.store.Set(key, RateLimitEntry{Count: e.Count + 1, LastRequest: now})
 	}
-	l.store.Set(key, RateLimitEntry{Count: e.Count + 1, LastRequest: now})
+	return false, 0
 }

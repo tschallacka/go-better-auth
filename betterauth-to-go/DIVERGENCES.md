@@ -18,8 +18,19 @@ No code exists yet. The Owner chose "tightened" on 2026-11-09 for the library we
 | D12 | password hash compared with plain === | constant-time compare | timing; invisible to clients |
 | D13 | adapter `contains`, `starts_with` and `ends_with` put the value into a LIKE pattern as written, so `%` and `_` in user input act as wildcards (`%_` matches every row) | wildcards escaped; the value matches itself only | found while porting the Kysely adapter; affects any search built on these operators |
 | D14 | a plugin's `schema` option (`mergeSchema`) writes renames into the plugin's shared default schema, so every later instance in the same process inherits them | each instance builds its own copy | observed while recording the schema fixtures; not wire-visible |
-| D15 | rate limiting keys on the first `X-Forwarded-For` address and is skipped entirely when there is none (one warning, then unlimited) | the connection's address is used when the header is missing | a missing proxy header must not switch limiting off; behind a proxy that sets the header both behave the same (`TestRateLimitMatchesLibrary`) |
+| D15 | rate limiting keys on the first `X-Forwarded-For` address and is skipped entirely when there is none (one warning, then unlimited) | the connection's address is used when the header is missing; unknown paths share one counter per client | a missing header must not switch limiting off; behind a proxy that sets the header both behave the same (`TestRateLimitMatchesLibrary`, `TestRateLimitIPv6Subnet`). Addresses are normalised as the library does (IPv6 to its /64, `Advanced.IPv6Subnet`). See "X-Forwarded-For is trusted" below |
 | D16 | rate limiting is on only when `NODE_ENV=production` | on unless `RateLimit.Disabled` | Go has no development mode to infer it from |
+| D17 | the rate limiter counts a request after its response, so simultaneous requests all pass the check before any is counted (30 parallel sign-ins: 30 attempts) | check and count in one step under a lock when the request arrives | the 3-per-10-seconds sign-in limit must hold under load (`TestRateLimitUnderConcurrency`); with a shared `RateLimitStore` the store must do the same atomically |
+| D18 | callbackURL and Origin are matched by string: an upper-case host (`http://LOCALHOST:3000`) and `http://localhost:3000\@evil.com` are accepted, and a non-string callbackURL crashes with 500 | parsed and compared as origins: the upper-case host and the backslash form are refused (403), a non-string callbackURL is a 400 VALIDATION_ERROR | stricter, never looser; a browser sends canonical origins, so no real client is affected |
+
+### X-Forwarded-For is trusted, as in the library
+
+Both read the client address from the first `X-Forwarded-For` entry without checking where the request came from. Behind a proxy that sets the header that is right; a service that faces clients directly lets them choose their address, and with it their rate-limit bucket (rotating the header defeats the limit on both sides). Put the service behind a proxy that overwrites the header. D15 only covers a missing header; it does not make a spoofed one safe.
+
+### Settings that cannot be zero
+
+`Session.UpdateAge` and `EmailAndPassword.MinPasswordLength` treat zero as "use the default" (1 day, 8 characters), so "refresh on every request" and "no minimum" cannot be configured. Neither is needed by the first consumer; say so if it is.
+
 
 ### Notes on D9 as implemented
 

@@ -3,6 +3,7 @@ package compat
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -113,6 +114,67 @@ func TestRateLimitMatchesLibrary(t *testing.T) {
 	if rl, rg := lib.Post(t, api+"/sign-in/email", map[string]any{"email": "nobody@example.com", "password": "x"}),
 		gol.Post(t, api+"/sign-in/email", map[string]any{"email": "nobody@example.com", "password": "x"}); rl.Status != rg.Status {
 		t.Errorf("another address: go %d, library %d", rg.Status, rl.Status)
+	}
+}
+
+// A client rotating addresses inside one IPv6 /64 is limited as one client,
+// on both sides.
+func TestRateLimitIPv6Subnet(t *testing.T) {
+	lc := coreConfig()
+	lc.RateLimit = true
+	gc := goConfig()
+	gc.RateLimit = betterauth.RateLimitOptions{}
+	s := newSidesWith(t, lc, gc)
+	lib, gol := s.browsers()
+	for i := 1; i <= 4; i++ {
+		xff := http.Header{"X-Forwarded-For": {fmt.Sprintf("2001:db8:1:2::%x", i)}}
+		lib.Header, gol.Header = xff, xff
+		rl := lib.Post(t, api+"/sign-in/email", map[string]any{"email": "nobody@example.com", "password": "wrong-password"})
+		rg := gol.Post(t, api+"/sign-in/email", map[string]any{"email": "nobody@example.com", "password": "wrong-password"})
+		if rl.Status != rg.Status {
+			t.Fatalf("attempt %d from another address in the /64: go %d, library %d", i, rg.Status, rl.Status)
+		}
+		if i == 4 && rg.Status != 429 {
+			t.Errorf("fourth attempt from one /64: %d; want 429", rg.Status)
+		}
+	}
+}
+
+// Check and count are one step: of many simultaneous sign-ins from one
+// client only the allowed number get through. (The library counts after the
+// response, so it lets them all through; there is nothing to compare.)
+func TestRateLimitUnderConcurrency(t *testing.T) {
+	gc := goConfig()
+	gc.RateLimit = betterauth.RateLimitOptions{}
+	pool := testdb.Fresh(t)
+	migrate(t, pool)
+	auth, err := betterauth.New(gc, pgstore.New(pool))
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := httptest.NewServer(auth.Handler())
+	t.Cleanup(srv.Close)
+
+	const n = 30
+	statuses := make(chan int, n)
+	start := make(chan struct{})
+	for range n {
+		go func() {
+			c := difftest.NewClient(srv.URL, baseURL)
+			c.Header = http.Header{"X-Forwarded-For": {"198.51.100.4"}}
+			<-start
+			statuses <- c.Post(t, api+"/sign-in/email", map[string]any{"email": "nobody@example.com", "password": "wrong-password"}).Status
+		}()
+	}
+	close(start)
+	passed := 0
+	for range n {
+		if <-statuses != http.StatusTooManyRequests {
+			passed++
+		}
+	}
+	if passed != 3 {
+		t.Errorf("%d of %d simultaneous sign-ins got through; want 3", passed, n)
 	}
 }
 

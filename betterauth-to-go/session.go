@@ -3,8 +3,9 @@ package betterauth
 import (
 	"context"
 	"errors"
-	"net"
+	"fmt"
 	"net/http"
+	"net/netip"
 	"strings"
 	"time"
 
@@ -78,18 +79,60 @@ func userFrom(o *object) User {
 }
 
 // clientIP is the library's getIp in production: the first entry of
-// X-Forwarded-For when it is a valid IP, otherwise empty. Like the library
-// it trusts the header; put the service behind a proxy that sets it.
-func clientIP(r *http.Request) string {
+// X-Forwarded-For when it is a valid IP, normalised (normalizeIP), otherwise
+// empty. Like the library it trusts the header, so the service must sit
+// behind a proxy that sets it (DIVERGENCES.md, D15).
+func (a *Auth) clientIP(r *http.Request) string {
 	xff := r.Header.Get("X-Forwarded-For")
 	if xff == "" {
 		return ""
 	}
 	first := strings.TrimSpace(strings.Split(xff, ",")[0])
-	if net.ParseIP(first) == nil {
+	ip, ok := normalizeIP(first, a.ipv6Subnet())
+	if !ok {
 		return ""
 	}
-	return first
+	return ip
+}
+
+func (a *Auth) ipv6Subnet() int {
+	if a.cfg.Advanced.IPv6Subnet != nil {
+		return *a.cfg.Advanced.IPv6Subnet
+	}
+	return 64
+}
+
+// normalizeIP is the library's normalizeIP (core/src/utils/ip.ts): IPv4 as
+// written, IPv4-mapped IPv6 as IPv4, any other IPv6 masked to its /subnet
+// and written as eight lowercase four-digit groups. Clients that rotate
+// addresses inside one /64 are thereby limited together.
+func normalizeIP(s string, subnet int) (string, bool) {
+	addr, err := netip.ParseAddr(s)
+	if err != nil || addr.Zone() != "" {
+		return "", false
+	}
+	if addr.Is4() {
+		return addr.String(), true
+	}
+	if addr.Is4In6() {
+		return addr.Unmap().String(), true
+	}
+	if subnet < 0 {
+		subnet = 0
+	}
+	if subnet < 128 {
+		p, err := addr.Prefix(subnet)
+		if err != nil {
+			return "", false
+		}
+		addr = p.Addr()
+	}
+	b := addr.As16()
+	groups := make([]string, 8)
+	for i := range groups {
+		groups[i] = fmt.Sprintf("%02x%02x", b[2*i], b[2*i+1])
+	}
+	return strings.Join(groups, ":"), true
 }
 
 // createSession writes a session for userID, as internalAdapter.createSession.
@@ -108,7 +151,7 @@ func (a *Auth) createSession(ctx context.Context, s Store, r *http.Request, user
 		"token":     token,
 		"createdAt": now,
 		"updatedAt": now,
-		"ipAddress": clientIP(r),
+		"ipAddress": a.clientIP(r),
 		"userAgent": r.UserAgent(),
 		"userId":    userID,
 	})

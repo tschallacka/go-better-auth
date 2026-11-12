@@ -158,26 +158,36 @@ func TestResolveSession(t *testing.T) {
 	}
 }
 
-// Session fixation: a session cookie planted before sign-in is never adopted;
-// sign-in always issues a new token.
-func TestSignInIssuesAFreshSession(t *testing.T) {
+// Session fixation: an attacker plants the cookie of their own session in
+// the victim's browser. Sign-in must issue the victim a new session and
+// never turn the planted token into the victim's.
+func TestSignInIgnoresAPlantedSession(t *testing.T) {
 	a, url, _ := start(t, config())
-	victim := difftest.NewClient(url, baseURL)
-	if r := signUp(t, victim, "ann@example.com"); r.Status != 200 {
-		t.Fatalf("sign-up: %d %s", r.Status, r.Body)
+	attacker := difftest.NewClient(url, baseURL)
+	if r := signUp(t, attacker, "mallory@example.com"); r.Status != 200 {
+		t.Fatalf("attacker sign-up: %d %s", r.Status, r.Body)
 	}
-	planted := victim.Cookies()[token].Value
+	if r := signUp(t, difftest.NewClient(url, baseURL), "ann@example.com"); r.Status != 200 {
+		t.Fatalf("victim sign-up: %d %s", r.Status, r.Body)
+	}
+	planted := attacker.Cookies()[token].Value
+
+	victim := difftest.NewClient(url, baseURL)
+	victim.SetCookie(token, planted)
 	r := victim.Post(t, api+"/sign-in/email", map[string]any{"email": "ann@example.com", "password": "12345678"})
 	if r.Status != 200 {
-		t.Fatalf("sign-in: %d %s", r.Status, r.Body)
+		t.Fatalf("victim sign-in: %d %s", r.Status, r.Body)
 	}
 	fresh := victim.Cookies()[token].Value
 	if fresh == planted {
-		t.Fatal("sign-in kept the session token the browser already had")
+		t.Fatal("sign-in kept the planted session cookie")
 	}
-	before, _ := a.ResolveSession(request(token + "=" + planted))
-	after, err := a.ResolveSession(request(token + "=" + fresh))
-	if err != nil || before == nil || after.Session.Token == before.Session.Token {
-		t.Errorf("sign-in did not create a distinct session: %v", err)
+	got, err := a.ResolveSession(request(token + "=" + fresh))
+	if err != nil || got.User.Email != "ann@example.com" {
+		t.Fatalf("the victim's new session: %+v, %v", got, err)
+	}
+	still, err := a.ResolveSession(request(token + "=" + planted))
+	if err != nil || still.User.Email != "mallory@example.com" {
+		t.Errorf("the planted token now resolves to %+v, %v; it must still be the attacker's own", still, err)
 	}
 }

@@ -3,6 +3,8 @@ package compat
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"strings"
@@ -115,9 +117,23 @@ func same(t *testing.T, lib, gol *difftest.Client, st step) (*difftest.Response,
 		t.Errorf("%s: status go %d, library %d\n go  %s\n lib %s", st.label, rg.Status, rl.Status, rg.Body, rl.Body)
 		return rl, rg
 	}
-	for _, h := range []string{"Content-Type", "Location", "X-Retry-After"} {
-		if rl.Header.Get(h) != rg.Header.Get(h) {
-			t.Errorf("%s: %s go %q, library %q", st.label, h, rg.Header.Get(h), rl.Header.Get(h))
+	// Every header both could send, except the ones a server or transport
+	// sets on its own.
+	volatile := map[string]bool{"Date": true, "Content-Length": true, "Connection": true, "Keep-Alive": true,
+		"Transfer-Encoding": true, "Set-Cookie": true}
+	names := map[string]bool{}
+	for h := range rl.Header {
+		names[h] = true
+	}
+	for h := range rg.Header {
+		names[h] = true
+	}
+	for h := range names {
+		if volatile[h] {
+			continue
+		}
+		if strings.Join(rl.Header.Values(h), "|") != strings.Join(rg.Header.Values(h), "|") {
+			t.Errorf("%s: %s go %q, library %q", st.label, h, rg.Header.Values(h), rl.Header.Values(h))
 		}
 	}
 	var cl, cg []string
@@ -218,6 +234,12 @@ func TestCoreMatchesLibrary(t *testing.T) {
 		{label: "double slash", method: "GET", path: api + "//get-session"},
 		get("ok", "/ok"),
 		{label: "malformed JSON", method: "POST", path: api + "/sign-in/email", ctype: "application/json", body: `{"email":`},
+		{label: "JSON with trailing garbage", method: "POST", path: api + "/sign-in/email", ctype: "application/json", body: `{"email":"ann@example.com","password":"12345678"}x`},
+		{label: "percent-encoded slash in the path", method: "POST", path: api + "/sign-in%2Femail", ctype: "application/json", body: `{"email":"ann@example.com","password":"12345678"}`},
+		{label: "percent-encoded letter in the path", method: "GET", path: api + "/%67et-session"},
+		{label: "body on GET get-session", method: "GET", path: api + "/get-session", ctype: "text/plain", body: "hello"},
+		{label: "form with a bad escape", method: "POST", path: api + "/sign-in/email", ctype: "application/x-www-form-urlencoded", body: "email=a%ZZ@b.co&password=12345678"},
+		{label: "form with a semicolon", method: "POST", path: api + "/sign-in/email", ctype: "application/x-www-form-urlencoded", body: "email=a@b.co;x=1&password=12345678"},
 	} {
 		same(t, in1, in2, st)
 	}
@@ -258,4 +280,22 @@ func TestCoreMatchesLibrary(t *testing.T) {
 		c.SetCookie(sessionCookie, "x")
 	}
 	same(t, z1, z2, post("null origin with a cookie", "/sign-out", `{}`))
+	e1, e2 := s.browsers()
+	for _, c := range []*difftest.Client{e1, e2} {
+		c.Origin = "http://evil.example"
+		c.Header = http.Header{"Cookie": {""}}
+	}
+	same(t, e1, e2, post("foreign origin with an empty Cookie header", "/sign-out", `{}`))
+
+	// The session's ipAddress comes from X-Forwarded-For, normalised: IPv6 to
+	// its /64, IPv4-mapped IPv6 to IPv4. ipAddress is compared unmasked.
+	for i, xff := range []string{"2001:DB8::1", "::ffff:1.2.3.4", "203.0.113.9", "not-an-ip"} {
+		f1, f2 := s.browsers()
+		for _, c := range []*difftest.Client{f1, f2} {
+			c.Header = http.Header{"X-Forwarded-For": {xff + ", 10.0.0.1"}}
+		}
+		email := fmt.Sprintf("ip%d@example.com", i)
+		same(t, f1, f2, post("sign-up from "+xff, "/sign-up/email", `{"email":"`+email+`","password":"12345678","name":"Ip"}`))
+		same(t, f1, f2, get("session ipAddress from "+xff, "/get-session"))
+	}
 }

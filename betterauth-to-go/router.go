@@ -12,6 +12,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/tschallacka/go-better-auth/betterauth-to-go/internal/jsuri"
 )
 
 // maxBody caps a request body; auth requests are small.
@@ -56,33 +58,42 @@ func (a *Auth) serve(w http.ResponseWriter, r *http.Request) {
 	rc := &requestContext{r: r, cookies: &setCookies{}, header: http.Header{}}
 
 	// The router strips the base path the way better-call does: split on it
-	// and keep what follows the first occurrence.
-	path, ok := a.relativePath(r.URL.Path)
+	// and keep what follows the first occurrence. It works on the path as
+	// sent: a percent-encoded "/" or letter is not a route, as in the library,
+	// so rules written against literal paths cannot be sidestepped.
+	path, ok := a.relativePath(r.URL.EscapedPath())
 	rc.path = path
+	rt, found := routes[path]
 
 	if a.limiter != nil {
-		if blocked, retry := a.limiter.check(a.rateLimitIP(r), path); blocked {
+		// Unknown paths share one counter per client, so a stream of made-up
+		// paths cannot fill the store with keys.
+		key := path
+		if !ok || !found {
+			key = "/<unknown>"
+		}
+		if blocked, retry := a.limiter.consume(a.rateLimitIP(r), key); blocked {
+			w.Header().Set("Content-Type", "text/plain;charset=UTF-8")
 			w.Header().Set("X-Retry-After", strconv.Itoa(retry))
 			w.WriteHeader(http.StatusTooManyRequests)
 			_, _ = w.Write([]byte(`{"message":"Too many requests. Please try again later."}`))
-			a.limiter.record(a.rateLimitIP(r), path)
 			return
 		}
-		defer a.limiter.record(a.rateLimitIP(r), path)
 	}
 
-	rt, found := routes[path]
 	if !ok || !found || !allows(rt.methods, r.Method) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	if apiErr, internal := a.parseBody(rc, rt); internal {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	} else if apiErr != nil {
-		a.respond(w, rc, nil, apiErr)
-		return
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		if apiErr, internal := a.parseBody(rc, rt); internal {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		} else if apiErr != nil {
+			a.respond(w, rc, nil, apiErr)
+			return
+		}
 	}
 	if err := a.originCheck(rc); err != nil {
 		a.respond(w, rc, nil, err)
@@ -140,17 +151,13 @@ func (a *Auth) parseBody(rc *requestContext, rt route) (apiErr *APIError, intern
 		if err := dec.Decode(&v); err != nil {
 			return nil, true
 		}
-		rc.rawBody, rc.hasBody = v, true
-	case rt.form && strings.HasPrefix(strings.ToLower(ct), "application/x-www-form-urlencoded"):
-		vals, err := url.ParseQuery(string(raw))
-		if err != nil {
+		// Anything after the value is malformed JSON, as JSON.parse sees it.
+		if _, err := dec.Token(); err != io.EOF {
 			return nil, true
 		}
-		m := map[string]any{}
-		for k, v := range vals {
-			m[k] = v[len(v)-1]
-		}
-		rc.rawBody, rc.hasBody = m, true
+		rc.rawBody, rc.hasBody = v, true
+	case rt.form && strings.HasPrefix(strings.ToLower(ct), "application/x-www-form-urlencoded"):
+		rc.rawBody, rc.hasBody = parseForm(string(raw)), true
 	default:
 		return &APIError{Status: http.StatusUnsupportedMediaType, Code: "UNSUPPORTED_MEDIA_TYPE",
 			Message: fmt.Sprintf("Content-Type %q is not allowed. Allowed types: %s", ct, strings.Join(allowed, ", "))}, false
@@ -161,11 +168,59 @@ func (a *Auth) parseBody(rc *requestContext, rt route) (apiErr *APIError, intern
 	return nil, false
 }
 
+// parseForm reads an application/x-www-form-urlencoded body as the WHATWG
+// URLSearchParams parser does: split on "&" only, "+" is a space, a valid
+// %XX escape is a byte and an invalid one stays as written, bytes are read
+// as UTF-8 with replacement. The last value of a repeated name wins, as in
+// Object.fromEntries.
+func parseForm(s string) map[string]any {
+	out := map[string]any{}
+	for _, pair := range strings.Split(s, "&") {
+		if pair == "" {
+			continue
+		}
+		name, value, _ := strings.Cut(pair, "=")
+		out[formDecode(name)] = formDecode(value)
+	}
+	return out
+}
+
+func formDecode(s string) string {
+	b := make([]byte, 0, len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c == '+':
+			b = append(b, ' ')
+		case c == '%' && i+2 < len(s) && isHex(s[i+1]) && isHex(s[i+2]):
+			b = append(b, unhex(s[i+1])<<4|unhex(s[i+2]))
+			i += 2
+		default:
+			b = append(b, c)
+		}
+	}
+	return jsuri.DecodeUTF8(b)
+}
+
+func isHex(c byte) bool {
+	return '0' <= c && c <= '9' || 'a' <= c && c <= 'f' || 'A' <= c && c <= 'F'
+}
+
+func unhex(c byte) byte {
+	switch {
+	case '0' <= c && c <= '9':
+		return c - '0'
+	case 'a' <= c && c <= 'f':
+		return c - 'a' + 10
+	}
+	return c - 'A' + 10
+}
+
 // rateLimitIP keys the limiter. The library uses the first X-Forwarded-For
 // entry and skips limiting without one (D15: here the connection's address
 // is used instead, so a missing header does not switch limiting off).
 func (a *Auth) rateLimitIP(r *http.Request) string {
-	if ip := clientIP(r); ip != "" {
+	if ip := a.clientIP(r); ip != "" {
 		return ip
 	}
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -235,7 +290,9 @@ func (a *Auth) validateOrigin(r *http.Request, force bool) *APIError {
 	if a.cfg.Advanced.DisableOriginCheck || a.cfg.Advanced.DisableCSRFCheck {
 		return nil
 	}
-	if r.Header.Get("Cookie") == "" && !force {
+	// Any Cookie header counts, as the cookie parser reads them all: an empty
+	// first line must not skip the check while a later one authenticates.
+	if len(r.Header.Values("Cookie")) == 0 && !force {
 		return nil
 	}
 	origin := r.Header.Get("Origin")
@@ -285,7 +342,7 @@ func (a *Auth) formCSRF(r *http.Request) *APIError {
 	if a.cfg.Advanced.DisableOriginCheck || a.cfg.Advanced.DisableCSRFCheck {
 		return nil
 	}
-	if r.Header.Get("Cookie") != "" {
+	if len(r.Header.Values("Cookie")) > 0 {
 		return a.validateOrigin(r, false)
 	}
 	site, mode, dest := r.Header.Get("Sec-Fetch-Site"), r.Header.Get("Sec-Fetch-Mode"), r.Header.Get("Sec-Fetch-Dest")

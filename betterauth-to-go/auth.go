@@ -72,6 +72,10 @@ type Advanced struct {
 	// validation. Off by default; only for trusted, non-browser callers.
 	DisableOriginCheck bool
 	DisableCSRFCheck   bool
+	// IPv6Subnet is the prefix IPv6 client addresses are collapsed to for
+	// rate limiting and the session's ipAddress, as the library's
+	// ipAddress.ipv6Subnet. nil means 64; 128 keeps whole addresses.
+	IPv6Subnet *int
 }
 
 // RateLimitOptions configures rate limiting (D11). It is on by default: the
