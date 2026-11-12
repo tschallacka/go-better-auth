@@ -1,0 +1,590 @@
+{
+  "generator": "better-auth 1.6.14",
+  "seed": "INSERT INTO \"user\" (\"id\", \"name\", \"email\", \"emailVerified\", \"image\", \"createdAt\", \"updatedAt\") VALUES\n  ('u1', 'Ann', 'ann@example.com', true, NULL, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'),\n  ('u2', 'Bob', 'BOB@Example.com', false, 'b.png', '2026-02-01T00:00:00Z', '2026-02-01T00:00:00Z'),\n  ('u3', '50%_off', 'c@example.org', false, NULL, '2026-03-01T00:00:00Z', '2026-03-01T00:00:00Z'),\n  ('u4', '50xyoff', 'd@example.org', true, 'd.png', '2026-04-01T00:00:00Z', '2026-04-01T00:00:00Z'),\n  ('u5', 'Émile', 'ÉMILE@x.com', false, NULL, '2026-05-01T00:00:00Z', '2026-05-01T00:00:00Z'),\n  ('u6', 'straße', 'STRASSE@x.com', false, NULL, '2026-06-01T00:00:00Z', '2026-06-01T00:00:00Z'),\n  ('u7', 'Σίσυφος', 'ΣΊΣΥΦΟΣ@x.gr', true, NULL, '2026-07-01T00:00:00Z', '2026-07-01T00:00:00Z'),\n  ('u8', 'zoë', 'zoe@x.com', false, NULL, '2026-08-01T00:00:00Z', '2026-08-01T00:00:00Z');",
+  "queries": [
+    {
+      "name": "eq",
+      "where": [
+        {
+          "field": "name",
+          "operator": "eq",
+          "value": "Ann"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1"
+      ],
+      "count": 1
+    },
+    {
+      "name": "eq is case sensitive",
+      "where": [
+        {
+          "field": "email",
+          "operator": "eq",
+          "value": "ann@EXAMPLE.com"
+        }
+      ],
+      "options": {},
+      "ids": [],
+      "count": 0
+    },
+    {
+      "name": "eq insensitive ascii",
+      "where": [
+        {
+          "field": "email",
+          "operator": "eq",
+          "value": "BOB@EXAMPLE.COM",
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u2"
+      ],
+      "count": 1
+    },
+    {
+      "name": "eq insensitive accented",
+      "where": [
+        {
+          "field": "email",
+          "operator": "eq",
+          "value": "émile@x.com",
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [],
+      "count": 0
+    },
+    {
+      "name": "eq insensitive accented upper",
+      "where": [
+        {
+          "field": "email",
+          "operator": "eq",
+          "value": "ÉMILE@X.COM",
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [],
+      "count": 0
+    },
+    {
+      "name": "eq insensitive greek",
+      "where": [
+        {
+          "field": "email",
+          "operator": "eq",
+          "value": "σίσυφος@x.gr",
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [],
+      "count": 0
+    },
+    {
+      "name": "eq insensitive sharp s",
+      "where": [
+        {
+          "field": "email",
+          "operator": "eq",
+          "value": "strasse@x.com",
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u6"
+      ],
+      "count": 1
+    },
+    {
+      "name": "ne",
+      "where": [
+        {
+          "field": "name",
+          "operator": "ne",
+          "value": "Ann"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u2",
+        "u3",
+        "u4",
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ],
+      "count": 7
+    },
+    {
+      "name": "ne insensitive",
+      "where": [
+        {
+          "field": "email",
+          "operator": "ne",
+          "value": "bob@example.com",
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u3",
+        "u4",
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ],
+      "count": 7
+    },
+    {
+      "name": "eq null",
+      "where": [
+        {
+          "field": "image",
+          "operator": "eq",
+          "value": null
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u3",
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ],
+      "count": 6
+    },
+    {
+      "name": "ne null",
+      "where": [
+        {
+          "field": "image",
+          "operator": "ne",
+          "value": null
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u2",
+        "u4"
+      ],
+      "count": 2
+    },
+    {
+      "name": "eq boolean",
+      "where": [
+        {
+          "field": "emailVerified",
+          "operator": "eq",
+          "value": true
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u4",
+        "u7"
+      ],
+      "count": 3
+    },
+    {
+      "name": "in",
+      "where": [
+        {
+          "field": "id",
+          "operator": "in",
+          "value": [
+            "u1",
+            "u3",
+            "nope"
+          ]
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u3"
+      ],
+      "count": 2
+    },
+    {
+      "name": "in insensitive",
+      "where": [
+        {
+          "field": "email",
+          "operator": "in",
+          "value": [
+            "ANN@EXAMPLE.COM",
+            "bob@example.com",
+            "émile@x.com"
+          ],
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u2"
+      ],
+      "count": 2
+    },
+    {
+      "name": "not in",
+      "where": [
+        {
+          "field": "id",
+          "operator": "not_in",
+          "value": [
+            "u1",
+            "u2",
+            "u3"
+          ]
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u4",
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ],
+      "count": 5
+    },
+    {
+      "name": "not in insensitive",
+      "where": [
+        {
+          "field": "email",
+          "operator": "not_in",
+          "value": [
+            "ANN@EXAMPLE.COM",
+            "bob@example.com"
+          ],
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u3",
+        "u4",
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ],
+      "count": 6
+    },
+    {
+      "name": "in empty",
+      "where": [
+        {
+          "field": "id",
+          "operator": "in",
+          "value": []
+        }
+      ],
+      "options": {},
+      "error": "syntax error at or near \")\""
+    },
+    {
+      "name": "not in empty",
+      "where": [
+        {
+          "field": "id",
+          "operator": "not_in",
+          "value": []
+        }
+      ],
+      "options": {},
+      "error": "syntax error at or near \")\""
+    },
+    {
+      "name": "contains",
+      "where": [
+        {
+          "field": "email",
+          "operator": "contains",
+          "value": "example"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u3",
+        "u4"
+      ],
+      "count": 3
+    },
+    {
+      "name": "contains wildcards (D13)",
+      "where": [
+        {
+          "field": "name",
+          "operator": "contains",
+          "value": "%_"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u2",
+        "u3",
+        "u4",
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ],
+      "count": 8
+    },
+    {
+      "name": "starts with wildcard (D13)",
+      "where": [
+        {
+          "field": "name",
+          "operator": "starts_with",
+          "value": "50%"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u3",
+        "u4"
+      ],
+      "count": 2
+    },
+    {
+      "name": "ends with",
+      "where": [
+        {
+          "field": "email",
+          "operator": "ends_with",
+          "value": ".org"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u3",
+        "u4"
+      ],
+      "count": 2
+    },
+    {
+      "name": "contains insensitive",
+      "where": [
+        {
+          "field": "email",
+          "operator": "contains",
+          "value": "EXAMPLE",
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u2",
+        "u3",
+        "u4"
+      ],
+      "count": 4
+    },
+    {
+      "name": "contains insensitive accented",
+      "where": [
+        {
+          "field": "email",
+          "operator": "contains",
+          "value": "émile",
+          "mode": "insensitive"
+        }
+      ],
+      "options": {},
+      "ids": [],
+      "count": 0
+    },
+    {
+      "name": "gt string",
+      "where": [
+        {
+          "field": "name",
+          "operator": "gt",
+          "value": "Bob"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ],
+      "count": 4
+    },
+    {
+      "name": "lte string",
+      "where": [
+        {
+          "field": "name",
+          "operator": "lte",
+          "value": "Bob"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u2",
+        "u3",
+        "u4"
+      ],
+      "count": 4
+    },
+    {
+      "name": "gte date",
+      "where": [
+        {
+          "field": "createdAt",
+          "operator": "gte",
+          "value": {
+            "$date": "2026-06-01T00:00:00Z"
+          }
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u6",
+        "u7",
+        "u8"
+      ],
+      "count": 3
+    },
+    {
+      "name": "lt date",
+      "where": [
+        {
+          "field": "createdAt",
+          "operator": "lt",
+          "value": {
+            "$date": "2026-03-01T00:00:00Z"
+          }
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u2"
+      ],
+      "count": 2
+    },
+    {
+      "name": "and with or",
+      "where": [
+        {
+          "field": "email",
+          "operator": "ends_with",
+          "value": ".com"
+        },
+        {
+          "field": "id",
+          "operator": "eq",
+          "value": "u1",
+          "connector": "OR"
+        },
+        {
+          "field": "id",
+          "operator": "eq",
+          "value": "u3",
+          "connector": "OR"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1"
+      ],
+      "count": 1
+    },
+    {
+      "name": "or only",
+      "where": [
+        {
+          "field": "id",
+          "operator": "eq",
+          "value": "u1",
+          "connector": "OR"
+        },
+        {
+          "field": "name",
+          "operator": "eq",
+          "value": "zoë",
+          "connector": "OR"
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u1",
+        "u8"
+      ],
+      "count": 2
+    },
+    {
+      "name": "and and",
+      "where": [
+        {
+          "field": "emailVerified",
+          "operator": "eq",
+          "value": false
+        },
+        {
+          "field": "image",
+          "operator": "eq",
+          "value": null
+        }
+      ],
+      "options": {},
+      "ids": [
+        "u3",
+        "u5",
+        "u6",
+        "u8"
+      ],
+      "count": 4
+    },
+    {
+      "name": "sorted page",
+      "where": [
+        {
+          "field": "emailVerified",
+          "operator": "eq",
+          "value": false
+        }
+      ],
+      "options": {
+        "sortBy": {
+          "field": "name",
+          "direction": "desc"
+        },
+        "limit": 3,
+        "offset": 1
+      },
+      "ids": [
+        "u8",
+        "u6",
+        "u2"
+      ],
+      "count": 5
+    }
+  ]
+}

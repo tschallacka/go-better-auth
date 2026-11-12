@@ -11,6 +11,9 @@ import (
 	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // ErrURI is the equivalent of JavaScript's URIError.
@@ -244,6 +247,15 @@ func EncodeUTF8(s string) []byte {
 		return []byte(s)
 	}
 	return []byte(decodeUTF8([]byte(s)))
+}
+
+// lower is language-neutral Unicode lowercasing with the special casings
+// JavaScript applies (final sigma, İ to i plus combining dot).
+var lower = cases.Lower(language.Und)
+
+// ToLowerCase is String.prototype.toLowerCase.
+func ToLowerCase(s string) string {
+	return lower.String(s)
 }
 
 // UTF16Len is a JavaScript string's length for s.

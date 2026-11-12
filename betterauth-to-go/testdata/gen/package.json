@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "vectors": "node crypto-vectors.mjs > ../fixtures/crypto-vectors.json",
-    "schema": "node schema.mjs"
+    "schema": "node schema.mjs",
+    "adapter": "node adapter-vectors.mjs"
   },
   "dependencies": {
     "@better-auth/core": "1.6.14",

@@ -109,9 +109,7 @@ func TestOperators(t *testing.T) {
 		{"ne nil is IS NOT NULL", []betterauth.Where{{Column: "image", Operator: betterauth.Ne, Value: nil}}, []string{"u2"}},
 		{"in", []betterauth.Where{{Column: "id", Operator: betterauth.In, Value: []string{"u1", "u3", "zz"}}}, []string{"u1", "u3"}},
 		{"in insensitive", []betterauth.Where{{Column: "email", Operator: betterauth.In, Value: []string{"ANN@example.COM"}, Insensitive: true}}, []string{"u1"}},
-		{"in empty matches nothing", []betterauth.Where{{Column: "id", Operator: betterauth.In, Value: []string{}}}, []string{}},
 		{"not in", []betterauth.Where{{Column: "id", Operator: betterauth.NotIn, Value: []string{"u1", "u2"}}}, []string{"u3", "u4"}},
-		{"not in empty matches all", []betterauth.Where{{Column: "id", Operator: betterauth.NotIn, Value: []string{}}}, []string{"u1", "u2", "u3", "u4"}},
 		{"contains", []betterauth.Where{{Column: "email", Operator: betterauth.Contains, Value: "example.org"}}, []string{"u3", "u4"}},
 		{"contains escapes wildcards (D13)", []betterauth.Where{{Column: "name", Operator: betterauth.Contains, Value: "%_"}}, []string{"u3"}},
 		{"starts with escapes wildcards", []betterauth.Where{{Column: "name", Operator: betterauth.StartsWith, Value: "50%"}}, []string{"u3"}},
@@ -122,11 +120,12 @@ func TestOperators(t *testing.T) {
 			{Column: "id", Operator: betterauth.Lte, Value: "u3"},
 		}, []string{"u2", "u3"}},
 		// (AND group) AND (OR group), as the library's adapter combines them.
+		// Without the parentheses this would read (A AND B) OR C = {u1, u3}.
 		{"and with or group", []betterauth.Where{
-			{Column: "email", Operator: betterauth.EndsWith, Value: ".org"},
+			{Column: "email", Operator: betterauth.EndsWith, Value: ".com"},
 			{Column: "id", Value: "u1", Connector: betterauth.Or},
-			{Column: "id", Value: "u4", Connector: betterauth.Or},
-		}, []string{"u4"}},
+			{Column: "id", Value: "u3", Connector: betterauth.Or},
+		}, []string{"u1"}},
 		{"or only", []betterauth.Where{
 			{Column: "id", Value: "u1", Connector: betterauth.Or},
 			{Column: "id", Value: "u2", Connector: betterauth.Or},
@@ -136,6 +135,94 @@ func TestOperators(t *testing.T) {
 		if got := findIDs(t, s, c.where...); !eq(got, c.want) {
 			t.Errorf("%s: %v; want %v", c.name, got, c.want)
 		}
+	}
+}
+
+// An empty In/NotIn list is an error before anything reaches the database.
+// The library's query fails on one too; reading NotIn [] as "every row" would
+// turn an empty keep-list into a delete of the whole table.
+func TestEmptyListIsAnError(t *testing.T) {
+	s := coreStore(t)
+	addUser(t, s, "u1", "Ann", "a@example.com")
+	addUser(t, s, "u2", "Bob", "b@example.com")
+	for _, op := range []betterauth.Operator{betterauth.In, betterauth.NotIn} {
+		w := []betterauth.Where{{Column: "id", Operator: op, Value: []string{}}}
+		if _, err := s.FindMany(ctx, "user", w, betterauth.FindOptions{}); !errors.Is(err, betterauth.ErrEmptyList) {
+			t.Errorf("FindMany %s []: %v; want ErrEmptyList", op, err)
+		}
+		if _, err := s.UpdateMany(ctx, "user", w, betterauth.Row{"name": "x"}); !errors.Is(err, betterauth.ErrEmptyList) {
+			t.Errorf("UpdateMany %s []: %v; want ErrEmptyList", op, err)
+		}
+		if _, err := s.DeleteMany(ctx, "user", w); !errors.Is(err, betterauth.ErrEmptyList) {
+			t.Errorf("DeleteMany %s []: %v; want ErrEmptyList", op, err)
+		}
+		if _, err := s.ConsumeOne(ctx, "user", w); !errors.Is(err, betterauth.ErrEmptyList) {
+			t.Errorf("ConsumeOne %s []: %v; want ErrEmptyList", op, err)
+		}
+	}
+	if got := findIDs(t, s); !eq(got, []string{"u1", "u2"}) {
+		t.Errorf("rows after the refused calls: %v", got)
+	}
+	if got := findIDs(t, s, betterauth.Where{Column: "name", Value: "x"}); len(got) != 0 {
+		t.Errorf("rows renamed by a refused update: %v", got)
+	}
+}
+
+func addVerification(t *testing.T, s betterauth.Store, id, identifier string) {
+	t.Helper()
+	if _, err := s.Create(ctx, "verification", betterauth.Row{"id": id, "identifier": identifier, "value": "v-" + id,
+		"expiresAt": t0.Add(time.Hour), "createdAt": t0, "updatedAt": t0}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestConsumeOne(t *testing.T) {
+	s := coreStore(t)
+	addVerification(t, s, "v1", "same")
+	addVerification(t, s, "v2", "same")
+	w := []betterauth.Where{{Column: "identifier", Value: "same"}}
+	r, err := s.ConsumeOne(ctx, "verification", w)
+	if err != nil || (r["id"] != "v1" && r["id"] != "v2") {
+		t.Fatalf("ConsumeOne = %v, %v", r, err)
+	}
+	if n, _ := s.Count(ctx, "verification", nil); n != 1 {
+		t.Errorf("%d rows left; ConsumeOne must delete exactly one of several matches", n)
+	}
+	if _, err := s.ConsumeOne(ctx, "verification", w); err != nil {
+		t.Errorf("second consume: %v", err)
+	}
+	if _, err := s.ConsumeOne(ctx, "verification", w); !errors.Is(err, betterauth.ErrNotFound) {
+		t.Errorf("consume with nothing left: %v; want ErrNotFound", err)
+	}
+}
+
+func TestConsumeOneUnderRace(t *testing.T) {
+	s := coreStore(t)
+	addVerification(t, s, "v1", "token")
+	const racers = 20
+	start := make(chan struct{})
+	results := make(chan error, racers)
+	for range racers {
+		go func() {
+			<-start
+			_, err := s.ConsumeOne(ctx, "verification", []betterauth.Where{{Column: "identifier", Value: "token"}})
+			results <- err
+		}()
+	}
+	close(start)
+	won, lost := 0, 0
+	for range racers {
+		switch err := <-results; {
+		case err == nil:
+			won++
+		case errors.Is(err, betterauth.ErrNotFound):
+			lost++
+		default:
+			t.Errorf("racer: %v", err)
+		}
+	}
+	if won != 1 || lost != racers-1 {
+		t.Errorf("%d racers got the token and %d did not; want exactly one", won, lost)
 	}
 }
 

@@ -85,11 +85,21 @@ type Store interface {
 	UpdateMany(ctx context.Context, table string, where []Where, data Row) (int64, error)
 	// Delete removes every matching row; no match is not an error.
 	Delete(ctx context.Context, table string, where []Where) error
+	// ConsumeOne deletes exactly one matching row and returns it, or
+	// ErrNotFound. Under concurrent calls for the same row exactly one caller
+	// receives it: the race-safe way to use a single-use token.
+	ConsumeOne(ctx context.Context, table string, where []Where) (Row, error)
 	DeleteMany(ctx context.Context, table string, where []Where) (int64, error)
 	// Transaction runs fn with a Store bound to one transaction, committing
 	// when fn returns nil and rolling back otherwise.
 	Transaction(ctx context.Context, fn func(Store) error) error
 }
 
-// ErrNotFound is returned by FindOne and Update when no row matches.
+// ErrNotFound is returned by FindOne, Update and ConsumeOne when no row
+// matches.
 var ErrNotFound = errors.New("betterauth: not found")
+
+// ErrEmptyList is returned for an In or NotIn condition with no values. The
+// library's query fails on one too; reading it as "nothing" or "everything"
+// would turn an empty keep-list into a delete of the whole table.
+var ErrEmptyList = errors.New("betterauth: in/not_in with an empty list")

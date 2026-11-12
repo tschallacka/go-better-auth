@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/tschallacka/go-better-auth/betterauth-to-go/internal/testdb"
 	"github.com/tschallacka/go-better-auth/betterauth-to-go/internal/testvectors"
 	"github.com/tschallacka/go-better-auth/betterauth-to-go/migrations"
@@ -115,5 +117,63 @@ func TestCheckSchemaReportsDrift(t *testing.T) {
 	}
 	if blocking != 4 {
 		t.Errorf("%d blocking differences; want 4 (missing table, missing column, type, unexpected NOT NULL)", blocking)
+	}
+}
+
+// Tables are resolved through the whole search_path, as unqualified queries
+// are: an empty first schema must not hide tables in a later one.
+func TestCheckSchemaFollowsSearchPath(t *testing.T) {
+	sql, err := migrations.Read("0001_core.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pool := testdb.Fresh(t)
+	testdb.Exec(t, pool, sql)
+	testdb.Exec(t, pool, `CREATE SCHEMA app; ALTER ROLE CURRENT_USER IN DATABASE `+currentDatabase(t, pool)+` SET search_path = app, public`)
+	pool.Reset() // new connections pick up the search_path
+	var first string
+	if err := pool.QueryRow(context.Background(), "SELECT current_schema()").Scan(&first); err != nil || first != "app" {
+		t.Fatalf("current_schema = %q, %v; the test setup did not take", first, err)
+	}
+	diffs, err := pgstore.CheckSchema(context.Background(), pool, testvectors.SchemaFor(t, "core"))
+	if err != nil || len(diffs) != 0 {
+		t.Errorf("differences with tables later on the search_path: %v, %v", check(t, diffs), err)
+	}
+}
+
+func currentDatabase(t *testing.T, pool interface {
+	QueryRow(context.Context, string, ...any) pgx.Row
+}) string {
+	t.Helper()
+	var name string
+	if err := pool.QueryRow(context.Background(), "SELECT quote_ident(current_database())").Scan(&name); err != nil {
+		t.Fatal(err)
+	}
+	return name
+}
+
+// A composite index led by the column serves lookups on it; a partial unique
+// index does not guarantee uniqueness for every row.
+func TestCheckSchemaIndexRules(t *testing.T) {
+	sql, err := migrations.Read("0001_core.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pool := testdb.Fresh(t)
+	testdb.Exec(t, pool, sql)
+	testdb.Exec(t, pool, `
+		DROP INDEX "account_userId_idx";
+		CREATE INDEX "account_user_provider" ON "account" ("userId", "providerId");
+		ALTER TABLE "session" DROP CONSTRAINT "session_token_key";
+		CREATE UNIQUE INDEX "session_token_partial" ON "session" ("token") WHERE "expiresAt" > '2000-01-01';
+		ALTER TABLE "user" DROP CONSTRAINT "user_email_key";
+		CREATE UNIQUE INDEX "user_email_name" ON "user" ("email", "name");`)
+	diffs, err := pgstore.CheckSchema(context.Background(), pool, testvectors.SchemaFor(t, "core"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := strings.Join(check(t, diffs), " ")
+	if got != "session.token:missing_unique user.email:missing_unique" {
+		t.Errorf("differences %q; want the partial and the composite unique index rejected, the composite plain index accepted", got)
 	}
 }

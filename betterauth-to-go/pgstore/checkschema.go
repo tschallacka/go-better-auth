@@ -78,65 +78,66 @@ type column struct {
 	nullable bool
 }
 
-// CheckSchema compares the tables in the connection's current schema with s
-// and returns every difference. It reads the catalogue only and changes
-// nothing; use it at startup and in CI.
+// CheckSchema compares the tables the connection sees with s and returns
+// every difference. Each table is resolved the way an unqualified query
+// resolves it, through the whole search_path. It reads the catalogue only and
+// changes nothing; use it at startup and in CI.
 func CheckSchema(ctx context.Context, pool *pgxpool.Pool, s schema.Schema) ([]Difference, error) {
-	var current string
-	if err := pool.QueryRow(ctx, "SELECT current_schema()").Scan(&current); err != nil {
-		return nil, fmt.Errorf("pgstore: current schema: %w", err)
-	}
-
 	cols := map[string]map[string]column{}
-	rows, err := pool.Query(ctx, `SELECT table_name, column_name, udt_name, is_nullable = 'YES'
-		FROM information_schema.columns WHERE table_schema = $1`, current)
-	if err != nil {
-		return nil, fmt.Errorf("pgstore: reading columns: %w", err)
-	}
-	for rows.Next() {
-		var table, name, udt string
-		var nullable bool
-		if err := rows.Scan(&table, &name, &udt, &nullable); err != nil {
-			rows.Close()
-			return nil, err
-		}
-		if cols[table] == nil {
-			cols[table] = map[string]column{}
-		}
-		cols[table][name] = column{udt: udt, nullable: nullable}
-	}
-	rows.Close()
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	// Single-column indexes, keyed table/column, and whether one is unique.
+	// An index counts for a column when the column is its first key; a
+	// uniqueness guarantee only when the index is unique on that one column
+	// and not partial.
 	indexed := map[string]bool{}
 	unique := map[string]bool{}
-	rows, err = pool.Query(ctx, `SELECT t.relname, a.attname, i.indisunique
-		FROM pg_index i
-		JOIN pg_class t ON t.oid = i.indrelid
-		JOIN pg_namespace n ON n.oid = t.relnamespace
-		JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = i.indkey[0]
-		WHERE n.nspname = $1 AND i.indnkeyatts = 1`, current)
-	if err != nil {
-		return nil, fmt.Errorf("pgstore: reading indexes: %w", err)
-	}
-	for rows.Next() {
-		var table, col string
-		var isUnique bool
-		if err := rows.Scan(&table, &col, &isUnique); err != nil {
-			rows.Close()
+	for _, t := range s.Tables {
+		rows, err := pool.Query(ctx, `SELECT a.attname, ty.typname, NOT a.attnotnull
+			FROM pg_attribute a JOIN pg_type ty ON ty.oid = a.atttypid
+			WHERE a.attrelid = to_regclass(quote_ident($1)) AND a.attnum > 0 AND NOT a.attisdropped`, t.Model)
+		if err != nil {
+			return nil, fmt.Errorf("pgstore: reading columns of %s: %w", t.Model, err)
+		}
+		live := map[string]column{}
+		for rows.Next() {
+			var name, udt string
+			var nullable bool
+			if err := rows.Scan(&name, &udt, &nullable); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			live[name] = column{udt: udt, nullable: nullable}
+		}
+		rows.Close()
+		if err := rows.Err(); err != nil {
 			return nil, err
 		}
-		indexed[table+"/"+col] = true
-		if isUnique {
-			unique[table+"/"+col] = true
+		if len(live) == 0 {
+			continue // not visible: reported as a missing table below
 		}
-	}
-	rows.Close()
-	if err := rows.Err(); err != nil {
-		return nil, err
+		cols[t.Model] = live
+
+		rows, err = pool.Query(ctx, `SELECT a.attname, i.indisunique AND i.indnkeyatts = 1 AND i.indpred IS NULL
+			FROM pg_index i
+			JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = i.indkey[0]
+			WHERE i.indrelid = to_regclass(quote_ident($1))`, t.Model)
+		if err != nil {
+			return nil, fmt.Errorf("pgstore: reading indexes of %s: %w", t.Model, err)
+		}
+		for rows.Next() {
+			var col string
+			var isUnique bool
+			if err := rows.Scan(&col, &isUnique); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			indexed[t.Model+"/"+col] = true
+			if isUnique {
+				unique[t.Model+"/"+col] = true
+			}
+		}
+		rows.Close()
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
 	}
 
 	var diffs []Difference

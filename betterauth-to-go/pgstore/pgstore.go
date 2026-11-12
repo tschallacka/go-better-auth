@@ -1,6 +1,8 @@
 // Package pgstore implements betterauth.Store on PostgreSQL with pgx. It is
 // the only package that imports pgx. Queries follow the library's Kysely
-// adapter, except that LIKE wildcards in a value are escaped (D13).
+// adapter, except that LIKE wildcards in a value are escaped (D13) and an
+// empty In/NotIn list is an error before it reaches the database (the
+// library's query fails on it in PostgreSQL instead).
 package pgstore
 
 import (
@@ -16,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	betterauth "github.com/tschallacka/go-better-auth/betterauth-to-go"
+	"github.com/tschallacka/go-better-auth/betterauth-to-go/internal/jsuri"
 )
 
 type querier interface {
@@ -112,11 +115,7 @@ func (q *query) condition(w betterauth.Where) (string, error) {
 			vals = []any{w.Value}
 		}
 		if len(vals) == 0 {
-			// SQL has no empty IN list; the result of one is certain.
-			if op == betterauth.In {
-				return "FALSE", nil
-			}
-			return "TRUE", nil
+			return "", betterauth.ErrEmptyList
 		}
 		insensitive := w.Insensitive && allStrings(vals)
 		lhs := col
@@ -125,10 +124,10 @@ func (q *query) condition(w betterauth.Where) (string, error) {
 		}
 		parts := make([]string, len(vals))
 		for i, v := range vals {
-			parts[i] = q.arg(v)
 			if insensitive {
-				parts[i] = "lower(" + parts[i] + ")"
+				v = jsuri.ToLowerCase(v.(string))
 			}
+			parts[i] = q.arg(v)
 		}
 		kw := " IN ("
 		if op == betterauth.NotIn {
@@ -162,7 +161,9 @@ func (q *query) condition(w betterauth.Where) (string, error) {
 			sym = " <> "
 		}
 		if w.Insensitive && isString {
-			return "lower(" + col + ")" + sym + "lower(" + q.arg(w.Value) + ")", nil
+			// The library lowercases the value in JavaScript, not in SQL; the
+			// two disagree outside ASCII under some collations.
+			return "lower(" + col + ")" + sym + q.arg(jsuri.ToLowerCase(w.Value.(string))), nil
 		}
 		return col + sym + q.arg(w.Value), nil
 	case betterauth.Lt:
@@ -370,6 +371,28 @@ func (s *Store) UpdateMany(ctx context.Context, table string, where []betterauth
 func (s *Store) Delete(ctx context.Context, table string, where []betterauth.Where) error {
 	_, err := s.DeleteMany(ctx, table, where)
 	return err
+}
+
+// ConsumeOne implements betterauth.Store. The row is chosen and locked in one
+// statement, so of several concurrent callers exactly one deletes it; the
+// others re-check after the lock is released, find it gone, and get
+// ErrNotFound.
+func (s *Store) ConsumeOne(ctx context.Context, table string, where []betterauth.Where) (betterauth.Row, error) {
+	q := &query{}
+	t := ident(table)
+	q.WriteString("DELETE FROM " + t + " WHERE ctid = (SELECT ctid FROM " + t)
+	if err := q.where(where); err != nil {
+		return nil, err
+	}
+	q.WriteString(" LIMIT 1 FOR UPDATE) RETURNING *")
+	rows, err := s.rows(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+	if len(rows) == 0 {
+		return nil, betterauth.ErrNotFound
+	}
+	return rows[0], nil
 }
 
 // DeleteMany implements betterauth.Store.

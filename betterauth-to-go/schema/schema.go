@@ -356,8 +356,22 @@ type TwoFactorOptions struct {
 	User, TwoFactor PluginTable
 }
 
-// TwoFactor returns the two-factor plugin's schema.
-func TwoFactor(o TwoFactorOptions) Plugin {
+// errNoAdditional rejects additional fields on a plugin table that takes none.
+func errNoAdditional(plugin string, tables ...PluginTable) error {
+	for _, t := range tables {
+		if len(t.Additional) > 0 {
+			return fmt.Errorf("schema: the %s plugin takes no additional fields", plugin)
+		}
+	}
+	return nil
+}
+
+// TwoFactor returns the two-factor plugin's schema. It takes renames only;
+// additional fields are refused rather than ignored.
+func TwoFactor(o TwoFactorOptions) (Plugin, error) {
+	if err := errNoAdditional("two-factor", o.User, o.TwoFactor); err != nil {
+		return Plugin{}, err
+	}
 	user := Table{Name: "user", Model: "user", Fields: []Field{
 		{Name: "twoFactorEnabled", Type: Boolean, Default: false, NoInput: true},
 	}}
@@ -367,7 +381,7 @@ func TwoFactor(o TwoFactorOptions) Plugin {
 		{Name: "userId", Type: String, Required: true, Hidden: true, Index: true, References: &Reference{Model: "user", Field: "id"}},
 		{Name: "verified", Type: Boolean, Default: true, NoInput: true},
 	}}
-	return Plugin{ID: "two-factor", Tables: []Table{rename(user, o.User), rename(tf, o.TwoFactor)}}
+	return Plugin{ID: "two-factor", Tables: []Table{rename(user, o.User), rename(tf, o.TwoFactor)}}, nil
 }
 
 // PasskeyOptions are the passkey plugin's schema options.
@@ -375,8 +389,12 @@ type PasskeyOptions struct {
 	Passkey PluginTable
 }
 
-// Passkey returns the passkey plugin's schema.
-func Passkey(o PasskeyOptions) Plugin {
+// Passkey returns the passkey plugin's schema. It takes renames only;
+// additional fields are refused rather than ignored.
+func Passkey(o PasskeyOptions) (Plugin, error) {
+	if err := errNoAdditional("passkey", o.Passkey); err != nil {
+		return Plugin{}, err
+	}
 	pk := Table{Name: "passkey", Model: "passkey", Fields: []Field{
 		{Name: "name", Type: String},
 		{Name: "publicKey", Type: String, Required: true},
@@ -389,5 +407,5 @@ func Passkey(o PasskeyOptions) Plugin {
 		{Name: "createdAt", Type: Date},
 		{Name: "aaguid", Type: String},
 	}}
-	return Plugin{ID: "passkey", Tables: []Table{rename(pk, o.Passkey)}}
+	return Plugin{ID: "passkey", Tables: []Table{rename(pk, o.Passkey)}}, nil
 }

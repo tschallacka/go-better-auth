@@ -163,8 +163,13 @@ func TestBuildMatchesLibrary(t *testing.T) {
 func TestPluginOptionsDoNotLeak(t *testing.T) {
 	// The library's mergeSchema writes renames into the plugin's shared
 	// default schema, so a later instance inherits them. Here it must not.
-	_ = schema.TwoFactor(schema.TwoFactorOptions{TwoFactor: schema.PluginTable{ModelName: "renamed", Fields: map[string]string{"secret": "s"}}})
-	fresh := schema.TwoFactor(schema.TwoFactorOptions{})
+	if _, err := schema.TwoFactor(schema.TwoFactorOptions{TwoFactor: schema.PluginTable{ModelName: "renamed", Fields: map[string]string{"secret": "s"}}}); err != nil {
+		t.Fatal(err)
+	}
+	fresh, err := schema.TwoFactor(schema.TwoFactorOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
 	tf := fresh.Tables[1]
 	if tf.Model != "twoFactor" {
 		t.Errorf("model %q leaked from an earlier instance", tf.Model)
@@ -174,11 +179,21 @@ func TestPluginOptionsDoNotLeak(t *testing.T) {
 	}
 }
 
-func TestOrganizationRejectsUnsupported(t *testing.T) {
+func TestPluginsRejectUnsupportedOptions(t *testing.T) {
 	for _, o := range []schema.OrganizationOptions{{Teams: true}, {DynamicAccessControl: true}} {
 		if _, err := schema.Organization(o); err == nil {
 			t.Errorf("Organization(%+v) accepted an unsupported option", o)
 		}
+	}
+	extra := schema.PluginTable{Additional: []schema.Field{{Name: "x", Type: schema.String}}}
+	if _, err := schema.TwoFactor(schema.TwoFactorOptions{TwoFactor: extra}); err == nil {
+		t.Error("TwoFactor accepted additional fields it would have ignored")
+	}
+	if _, err := schema.TwoFactor(schema.TwoFactorOptions{User: extra}); err == nil {
+		t.Error("TwoFactor accepted additional user fields it would have ignored")
+	}
+	if _, err := schema.Passkey(schema.PasskeyOptions{Passkey: extra}); err == nil {
+		t.Error("Passkey accepted additional fields it would have ignored")
 	}
 }
 
