@@ -16,3 +16,5 @@ No code exists yet. The Owner chose "tightened" on 2026-11-09 for the library we
 | D11 | rate limits are per process, in memory | pluggable `RateLimitStore`, memory default, shared store supplied by the project | per-process counters are bypassed by running several instances; no schema change from this module |
 | D10 | check-verification-otp distinguishes USER_NOT_FOUND from INVALID_OTP | one uniform error | account enumeration; Taskmanager does not call this endpoint |
 | D12 | password hash compared with plain === | constant-time compare | timing; invisible to clients |
+| D13 | adapter `contains`, `starts_with` and `ends_with` put the value into a LIKE pattern as written, so `%` and `_` in user input act as wildcards (`%_` matches every row) | wildcards escaped; the value matches itself only | found while porting the Kysely adapter; affects any search built on these operators |
+| D14 | a plugin's `schema` option (`mergeSchema`) writes renames into the plugin's shared default schema, so every later instance in the same process inherits them | each instance builds its own copy | observed while recording the schema fixtures; not wire-visible |
