@@ -43,7 +43,8 @@
           GOTOOLCHAIN = "local";
 
           shellHook = ''
-            export PATH="$PWD/scripts:$PATH"
+            # scripts/ of this checkout, wherever inside it the shell starts.
+            export PATH="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/scripts:$PATH"
             echo "go-better-auth dev shell: $(go version | cut -d' ' -f3), postgres $(postgres --version | awk '{print $3}'), node $(node --version), bun $(bun --version)" >&2
           '';
         };

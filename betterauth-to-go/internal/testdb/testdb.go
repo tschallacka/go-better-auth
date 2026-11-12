@@ -21,6 +21,14 @@ import (
 // GBA_REQUIRE_DATABASE=1 (set in CI), which makes that a failure.
 func Fresh(t testing.TB) *pgxpool.Pool {
 	t.Helper()
+	pool, _ := FreshURL(t)
+	return pool
+}
+
+// FreshURL is Fresh that also returns the database's URL, for handing the
+// same database to another process.
+func FreshURL(t testing.TB) (*pgxpool.Pool, string) {
+	t.Helper()
 	admin := os.Getenv("GBA_TEST_DATABASE_URL")
 	if admin == "" {
 		if os.Getenv("GBA_REQUIRE_DATABASE") == "1" {
@@ -67,7 +75,7 @@ func Fresh(t testing.TB) *pgxpool.Pool {
 			t.Errorf("dropping test database: %v", err)
 		}
 	})
-	return pool
+	return pool, u.String()
 }
 
 // Exec runs one or more SQL statements or fails the test.
